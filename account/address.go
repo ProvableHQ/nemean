@@ -1,6 +1,8 @@
 package account
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"github.com/btcsuite/btcutil/bech32"
@@ -29,4 +31,14 @@ func ParseAddress(addr string)  (*Address, error){
 	}
 
 	return &Address{EncryptionKey: data}, nil
+}
+
+// String implements the stringer interface for Address.
+// Returns a bech32 encoded string.
+// If unable to encode to bech32, an empty string is returned.
+func (a Address) String() string {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.LittleEndian, a.EncryptionKey)
+	addr, _ := bech32.Encode(addrPrefix, buf.Bytes())
+	return addr
 }

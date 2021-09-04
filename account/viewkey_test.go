@@ -11,5 +11,7 @@ func TestParseViewKey(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Errorf("%v", res)
+	if k != res.String() {
+		t.Fatalf("invalid stringer : got %s want %s", res.String(), k)
+	}
 }

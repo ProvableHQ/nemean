@@ -19,4 +19,18 @@ func TestParsePrivateKey(t *testing.T) {
 	if res.RPkCounter != 4398 {
 		t.Fatal("invalid counter")
 	}
+
+	if k != res.String() {
+		t.Fatal("invalid stringer")
+	}
+}
+
+func TestFromSeed(t *testing.T) {
+	seed := []byte{159, 49, 179, 149, 139, 162, 4, 151, 204, 203, 22, 115, 191, 145, 114, 173, 14, 172, 123, 83, 16, 221, 161, 198, 134, 6, 39, 157, 117, 185, 176, 142}
+	account, err := FromSeed(seed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Fatalf("%v", account)
 }

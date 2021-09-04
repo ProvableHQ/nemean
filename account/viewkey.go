@@ -2,6 +2,7 @@ package account
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"github.com/btcsuite/btcutil/base58"
@@ -28,4 +29,13 @@ func ParseViewKey(key string) (*ViewKey, error){
 	decryptionKey := buf[7:]
 
 	return &ViewKey{DecryptionKey: decryptionKey}, nil
+}
+
+// String implements the stringer interface for ViewKey.
+// Returns the base58 encoded string.
+func (vk ViewKey) String() string {
+	var buf bytes.Buffer
+	buf.Write(viewKeyPrefix)
+	binary.Write(&buf, binary.LittleEndian, vk.DecryptionKey)
+	return base58.Encode(buf.Bytes())
 }

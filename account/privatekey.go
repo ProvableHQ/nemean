@@ -20,6 +20,16 @@ type PrivateKey struct {
 	RPkCounter uint16
 }
 
+// String implements the stringer interface for PrivateKey.
+// Returns the base58 encoded string.
+func (pk PrivateKey) String() string {
+	var buf bytes.Buffer
+	buf.Write(privateKeyPrefix)
+	binary.Write(&buf, binary.LittleEndian, pk.RPkCounter)
+	buf.Write(pk.Seed)
+	return base58.Encode(buf.Bytes())
+}
+
 func ParsePrivateKey(key string) (*PrivateKey, error) {
 	// An account private key is formatted as a Base58 string, comprised of 58 characters.
 	buf := base58.Decode(key)
@@ -49,32 +59,37 @@ func NewPrivateKey() {
 	rand.Read(d)
 }
 
-func fromSeed(seed []byte) error {
+type Account struct {
+	PrivateKey PrivateKey
+	Address Address
+}
+
+func FromSeed(seed []byte) (*Account, error) {
 	// Generate the SIG key pair.
 	skSig, err := blake2s.New256(append(seed, 0x00))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Generate the PRF key pair.
 	skPrf, err := blake2s.New256(append(seed, 0x01))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// counter is a u16 value that is iterated on until a valid view_key
 	// can be derived from private_key.
 	// TODO
-	var counter uint8 = 2
+	var counter uint16 = 2
 
 	for {
-		if counter > math.MaxInt8 {
-			return errInvalidSeed
+		if counter > math.MaxUint16 {
+			return nil, errInvalidSeed
 		}
 
-		buf, err := blake2s.New256(append(seed, counter))
+		buf, err := blake2s.New256(append(seed, 0x00))
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if ValidPrivateKey(buf.Sum(nil)) {
@@ -84,8 +99,11 @@ func fromSeed(seed []byte) error {
 		counter += 1
 	}
 
-	fmt.Printf("%v %v",skSig, skPrf)
-	return nil
+	print("%v %v",skSig, skPrf)
+	return &Account{
+		PrivateKey: PrivateKey{Seed: seed, RPkCounter: counter},
+		Address:    Address{},
+	}, nil
 
 }
 

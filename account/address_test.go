@@ -11,5 +11,7 @@ func TestParseAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Errorf("%v", res)
+	if addr != res.String() {
+		t.Fatalf("invalid stringer : got %s want %s", res.String(), addr)
+	}
 }
