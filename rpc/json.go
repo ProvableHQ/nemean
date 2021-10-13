@@ -1,6 +1,6 @@
 package rpc
 
-type GetBestBlockhashResponse struct {
+type Result struct {
 	Result string `json:"result"`
 }
 
