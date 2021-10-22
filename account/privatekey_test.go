@@ -2,6 +2,7 @@ package account
 
 import (
 	"bytes"
+	"github.com/pinestreetlabs/aleo-wallet-sdk/parameters"
 	"testing"
 )
 
@@ -17,7 +18,7 @@ func TestParsePrivateKey(t *testing.T) {
 	}
 
 	if res.RPkCounter != 4398 {
-		t.Fatal("invalid counter")
+		t.Fatal("invalid cAPrivateKey1xpBtAQmv5sHHWwZqya9UVbVBcGtnX95TAN7XSAQ6yLqE5bCounter")
 	}
 
 	if k != res.String() {
@@ -26,11 +27,19 @@ func TestParsePrivateKey(t *testing.T) {
 }
 
 func TestFromSeed(t *testing.T) {
-	seed := []byte{159, 49, 179, 149, 139, 162, 4, 151, 204, 203, 22, 115, 191, 145, 114, 173, 14, 172, 123, 83, 16, 221, 161, 198, 134, 6, 39, 157, 117, 185, 176, 142}
-	account, err := FromSeed(seed)
+	// Test case from dpc/src/account/tests.rs
+	seed := [32]byte{225, 188, 136, 113, 36, 134, 74, 147, 46, 205, 27, 245, 37, 173, 115, 101, 220, 243, 27, 56, 238, 226, 66, 152, 152, 245, 198, 104, 39, 128, 69, 183}
+	params, err := parameters.Load()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Fatalf("%v", account)
+	sk, err := FromSeed(seed, params.AccountSignature, params.AccountCommitment)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expected := "APrivateKey1xpBtAQmv5sHHWwZqya9UVbVBcGtnX95TAN7XSAQ6yLqE5bC"; sk.String() != expected {
+		t.Fatalf("%s != %s", sk.String(), expected)
+	}
 }
