@@ -17,3 +17,7 @@ test:
 .PHONY: staticcheck
 staticcheck:
 	GOFLAGS=-mod=vendor staticcheck ${GO_PKG_LIST}
+
+.PHONY: lint
+lint:
+	golint -set_exit_status ${GO_PKG_LIST}
