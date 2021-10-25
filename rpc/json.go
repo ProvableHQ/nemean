@@ -2,6 +2,13 @@ package rpc
 
 import "encoding/json"
 
+type Request struct {
+	Method     string            `json:"method"`
+	Params     []json.RawMessage `json:"params"`
+	Id         string            `json:"id"`
+	RpcVersion string            `json:"jsonrpc"`
+}
+
 type Result struct {
 	Result json.RawMessage `json:"result"`
 	Error  string          `json:"error"`

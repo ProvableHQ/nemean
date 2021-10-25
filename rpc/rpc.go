@@ -51,7 +51,6 @@ func newRequest(client *Client, body []byte) (*Result, error) {
 		return nil, err
 	}
 
-	// Handle response!
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -67,13 +66,6 @@ func newRequest(client *Client, body []byte) (*Result, error) {
 	}
 
 	return &result, nil
-}
-
-type Request struct {
-	Method     string            `json:"method"`
-	Params     []json.RawMessage `json:"params"`
-	Id         string            `json:"id"`
-	RpcVersion string            `json:"jsonrpc"`
 }
 
 func newRequestBody(rpcVersion int, id string, method string, params []json.RawMessage) ([]byte, error) {
@@ -276,7 +268,7 @@ func (c *Client) SendTransaction(txHex string) (string, error) {
 		return "", err
 	}
 
-	req, err := newRequestBody(2, "documentation", sendTransactionMethod, []json.RawMessage{param})
+	req, err := newRequestBody(2, "", sendTransactionMethod, []json.RawMessage{param})
 	if err != nil {
 		return "", err
 	}
@@ -292,4 +284,24 @@ func (c *Client) SendTransaction(txHex string) (string, error) {
 	}
 
 	return res, nil
+}
+
+// CreateAccount creates a new account private key and its corresponding account address.
+func (c *Client) CreateAccount() (*CreateAccountResponse, error) {
+	req, err := newRequestBody(2, "", createAccountMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res CreateAccountResponse
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }

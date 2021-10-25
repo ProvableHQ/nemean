@@ -21,7 +21,7 @@ The following methods are supported:
 | sendtransaction | ✅ |
 | validaterawtransaction | ❌ |
 | connect | ❌ |
-| createaccount | ❌ |
+| createaccount | ✅ |
 | createrawtransaction | ❌ |
 | createtransaction | ❌ |
 | createtransactionkernel | ❌ |
