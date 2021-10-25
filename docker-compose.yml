@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  snarkos:
+    image: aleohq/snarkos
+    container_name: snarkos
+    command:
+      - ./aleo/bin/snarkos
+      - --rpc-username=aleo
+      - --rpc-password=password
+      - --network=0
+      - --rpc-port=3030
+    ports:
+      - 3030:3030
+    volumes:
+      - ./docker-data/snarkos:/root/
