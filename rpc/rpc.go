@@ -1,4 +1,4 @@
-// Package rpc provides an RPC client to the Aleo Daemon.
+// Package rpc provides an RPC client to the snarkOS Aleo client.
 package rpc
 
 import (
@@ -7,18 +7,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
+// Config holds the configuration for the RPC client.
 type Config struct {
-	User string
+	User     string
 	Password string
-	Host string
-	Port string
+	Host     string
+	Port     string
 }
 
+// Client maintains a connection to the Aleo client.
 type Client struct {
-	cfg *Config
+	cfg        *Config
 	httpClient *http.Client
 }
 
@@ -28,16 +29,15 @@ func NewClient(cfg *Config) (*Client, error) {
 
 	return &Client{
 		httpClient: httpClient,
-		cfg: cfg,
+		cfg:        cfg,
 	}, nil
 }
 
-func newRequest(client *Client, body []byte) ([]byte, error) {
+// newRequest creates a serialized request.
+func newRequest(client *Client, body []byte) (*Result, error) {
+	url := fmt.Sprintf("http://%s:%s", client.cfg.Host, client.cfg.Port)
 
-	url := fmt.Sprintf("http://%s:%s",client.cfg.Host, client.cfg.Port)
-
-	fmt.Printf("%v\n",body)
-	req, err := http.NewRequest("POST", url,bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -52,38 +52,45 @@ func newRequest(client *Client, body []byte) ([]byte, error) {
 	}
 
 	// Handle response!
-	return ioutil.ReadAll(resp.Body)
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var result Result
+	if err := json.Unmarshal(buf, &result); err != nil {
+		return nil, err
+	}
+
+	if len(result.Error) > 0 {
+		return nil, fmt.Errorf("%v", result.Error)
+	}
+
+	return &result, nil
 }
 
 type Request struct {
-	Method string `json:"method"`
-	Params []json.RawMessage `json:"params"`
-	Id string `json:"id"`
-	RpcVersion string `json:"jsonrpc"`
+	Method     string            `json:"method"`
+	Params     []json.RawMessage `json:"params"`
+	Id         string            `json:"id"`
+	RpcVersion string            `json:"jsonrpc"`
 }
 
-func newRequestBody(rpcVersion int, id string, method string, params []interface{}) ([]byte, error) {
+func newRequestBody(rpcVersion int, id string, method string, params []json.RawMessage) ([]byte, error) {
 	req := &Request{
 		Method:     method,
-		Params:     []json.RawMessage{},
+		Params:     params,
 		Id:         id,
 		RpcVersion: "2.0",
 	}
-	fmt.Printf("%v\n",req)
 	return json.Marshal(req)
-}
-
-
-type GetBlockCountResponse struct {
-	Result int64 `json:"result"`
 }
 
 // TODO decoderawtransaction
 
 // GetBlockCount returns the number of blocks in the best valid chain.
-// https://github.com/AleoHQ/snarkOS/blob/master/rpc/README.md#getblockcount
 func (c *Client) GetBlockCount() (int64, error) {
-	req, err := newRequestBody(2, "documentation","getblockcount" ,nil)
+	req, err := newRequestBody(2, "", getBlockCountMethod, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -93,17 +100,17 @@ func (c *Client) GetBlockCount() (int64, error) {
 		return 0, err
 	}
 
-	var count GetBlockCountResponse
-	if err := json.Unmarshal(resp, &count); err != nil {
+	var count int64
+	if err := json.Unmarshal(resp.Result, &count); err != nil {
 		return 0, err
 	}
 
-	return count.Result, nil
+	return count, nil
 }
 
-// GetBestBlockhash returns the block hash of the head of the best valid chain.
-func (c *Client) GetBestBlockhash() (string, error) {
-	req, err := newRequestBody(2, "documentation",getBestBlockHashMethod ,nil)
+// GetBestBlockHash returns the block hash of the head of the best valid chain.
+func (c *Client) GetBestBlockHash() (string, error) {
+	req, err := newRequestBody(2, "", getBestBlockHashMethod, nil)
 	if err != nil {
 		return "", err
 	}
@@ -113,54 +120,22 @@ func (c *Client) GetBestBlockhash() (string, error) {
 		return "", err
 	}
 
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return "", err
 	}
 
-	return res.Result, nil
+	return res, nil
 }
 
-func (c *Client) GetBlock() (string, error) {
-	req, err := newRequestBody(2, "documentation",getBlockMethod ,nil)
+// GetBlock returns information about a block from a block hash.
+func (c *Client) GetBlock(block string) (*GetBlockResponse, error) {
+	param, err := json.Marshal(block)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return "", err
-	}
-
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
-		return "", err
-	}
-
-	return res.Result, nil
-}
-
-func (c * Client) GetBlockHash(height int64) (string, error) {
-	req, err := newRequestBody(2, "documentation",getBlockHashMethod ,nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return "", err
-	}
-
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
-		return "", err
-	}
-
-	return res.Result, nil
-}
-
-func (c *Client) GetBlockTemplate() (*GetBlockTemplateResponse, error) {
-	req, err := newRequestBody(2, "documentation",getBlockTemplateMethod ,nil)
+	req, err := newRequestBody(2, "", getBlockMethod, []json.RawMessage{param})
 	if err != nil {
 		return nil, err
 	}
@@ -170,16 +145,62 @@ func (c *Client) GetBlockTemplate() (*GetBlockTemplateResponse, error) {
 		return nil, err
 	}
 
-	var res GetBlockTemplateResponse
-	if err := json.Unmarshal(resp, &res); err != nil {
+	var res GetBlockResponse
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
 
 	return &res, nil
 }
 
+// GetBlockHash returns the block hash of a block at the given block height in the best valid chain.
+func (c *Client) GetBlockHash(height int64) (string, error) {
+	param, err := json.Marshal(height)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := newRequestBody(2, "", getBlockHashMethod, []json.RawMessage{param})
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return "", err
+	}
+
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return "", err
+	}
+
+	return res, nil
+}
+
+// GetBlockTemplate returns the current mempool and consensus information known by this node.
+func (c *Client) GetBlockTemplate() (res *GetBlockTemplateResponse, err error) {
+	req, err := newRequestBody(2, "", getBlockTemplateMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var result Result
+	if err := json.Unmarshal(resp.Result, &result); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// GetConnectionCount returns the number of connected peers this node has.
 func (c *Client) GetConnectionCount() (int, error) {
-	req, err := newRequestBody(2, "documentation",getConnectionCountMethod ,nil)
+	req, err := newRequestBody(2, "", getConnectionCountMethod, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -189,21 +210,22 @@ func (c *Client) GetConnectionCount() (int, error) {
 		return 0, err
 	}
 
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
+	var res int
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return 0, err
 	}
 
-	count, err := strconv.ParseInt(res.Result,10,64)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(count), nil
+	return res, nil
 }
 
+// GetRawTransaction returns hex encoded bytes of a transaction from its transaction id.
 func (c *Client) GetRawTransaction(txID string) (string, error) {
-	req, err := newRequestBody(2, "documentation",getRawTransactionMethod ,nil)
+	param, err := json.Marshal(txID)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := newRequestBody(2, "", getRawTransactionMethod, []json.RawMessage{param})
 	if err != nil {
 		return "", err
 	}
@@ -213,16 +235,22 @@ func (c *Client) GetRawTransaction(txID string) (string, error) {
 		return "", err
 	}
 
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return "", err
 	}
 
-	return res.Result, nil
+	return res, nil
 }
 
+// GetTransactionInfo returns information about a transaction from a transaction id.
 func (c *Client) GetTransactionInfo(txID string) (*GetTransactionInfoResponse, error) {
-	req, err := newRequestBody(2, "documentation",getTransactionInfoMethod ,nil)
+	param, err := json.Marshal(txID)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getTransactionInfoMethod, []json.RawMessage{param})
 	if err != nil {
 		return nil, err
 	}
@@ -233,15 +261,22 @@ func (c *Client) GetTransactionInfo(txID string) (*GetTransactionInfoResponse, e
 	}
 
 	var res GetTransactionInfoResponse
-	if err := json.Unmarshal(resp, &res); err != nil {
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
 
 	return &res, nil
 }
 
+// SendTransaction sends raw transaction bytes to this node to be added into the mempool.
+// If valid, the transaction will be stored and propagated to all peers.
 func (c *Client) SendTransaction(txHex string) (string, error) {
-	req, err := newRequestBody(2, "documentation",sendTransactionMethod ,nil)
+	param, err := json.Marshal(txHex)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := newRequestBody(2, "documentation", sendTransactionMethod, []json.RawMessage{param})
 	if err != nil {
 		return "", err
 	}
@@ -251,10 +286,10 @@ func (c *Client) SendTransaction(txHex string) (string, error) {
 		return "", err
 	}
 
-	var res Result
-	if err := json.Unmarshal(resp, &res); err != nil {
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return "", err
 	}
 
-	return res.Result, nil
+	return res, nil
 }
