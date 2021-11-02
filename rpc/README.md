@@ -19,7 +19,7 @@ The following methods are supported:
 | getrawtransaction | ✅ |
 | gettransactioninfo | ✅ |
 | sendtransaction | ✅ |
-| validaterawtransaction | ❌ |
+| validaterawtransaction | ✅ |
 | connect | ❌ |
 | createaccount | ✅ |
 | createrawtransaction | ❌ |

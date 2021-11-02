@@ -305,3 +305,64 @@ func (c *Client) CreateAccount() (*CreateAccountResponse, error) {
 
 	return &res, nil
 }
+
+// ValidateRawTransaction validates and returns if the transaction is valid.
+func (c *Client) ValidateRawTransaction(txn string) (bool, error) {
+	param, err := json.Marshal(txn)
+	if err != nil {
+		return false, err
+	}
+
+	req, err := newRequestBody(2, "", validateRawTransactionMethod, []json.RawMessage{param})
+	if err != nil {
+		return false, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return false, err
+	}
+
+	var res bool
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return false, err
+	}
+
+	return res, nil
+}
+
+//func (c *Client) CreateTransaction(keys []string, kernel string) (*CreateTransactionResponse, error) {
+//	params := make([]json.RawMessage, 0)
+//
+//	{
+//		// TODO
+//		for _, key := range keys {
+//			param, err := json.Marshal(key)
+//			if err != nil {
+//				return false, err
+//			}
+//		}
+//		params = append(params, param)
+//	}
+//
+//	req, err := newRequestBody(2, "", validateRawTransactionMethod, []json.RawMessage{param})
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	resp, err := newRequest(c, req)
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	var res bool
+//	if err := json.Unmarshal(resp.Result, &res); err != nil {
+//		return false, err
+//	}
+//
+//	return res, nil
+//}
+
+//func (c *Client) CreateRawTransaction(records []string, keys []string, recipients []string, memo string, networkID int) {
+//
+//}

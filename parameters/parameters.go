@@ -3,6 +3,7 @@ package parameters
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/twistededwards"
 	extendedTec "github.com/pinestreetlabs/aleo-wallet-sdk/internal/crypto/twistededwards"
@@ -238,10 +239,10 @@ func loadAccountEncryption(filePath string) (*AccountEncryption, error) {
 	}, nil
 }
 
-func Load() (*Parameters, error) {
-	accountSignatureFile := ""
-	accountCommitmentFile := ""
-	accountEncryptionFile := ""
+func Load(dir string) (*Parameters, error) {
+	accountSignatureFile := fmt.Sprintf("%s/account_signature.params", dir)
+	accountCommitmentFile := fmt.Sprintf("%s/account_commitment.params", dir)
+	accountEncryptionFile := fmt.Sprintf("%s/account_encryption.params", dir)
 
 	accountSignature, err := loadAccountSignature(accountSignatureFile)
 	if err != nil {

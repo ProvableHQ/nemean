@@ -7,6 +7,7 @@ import (
 )
 
 func TestParsePrivateKey(t *testing.T) {
+	// TODO change
 	k := "APrivateKey1uaf51GJ6LuMzLi2jy9zJJC3doAtngx52WGFZrcvK6aBsEgo"
 	res, err := ParsePrivateKey(k)
 	if err != nil {
@@ -26,10 +27,24 @@ func TestParsePrivateKey(t *testing.T) {
 	}
 }
 
+func TestParsePrivateKey2(t *testing.T) {
+	privKey := "APrivateKey1zkp8cC4jgHEBnbtu3xxs1Ndja2EMizcvTRDq5Nikdkukg1p"
+
+	key, err := ParsePrivateKey(privKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create view key.
+	if key.ViewKey().String() != "AViewKey1iAf6a7fv6ELA4ECwAth1hDNUJJNNoWNThmREjpybqder" {
+		t.Fatalf("want %s got %s", "AViewKey1iAf6a7fv6ELA4ECwAth1hDNUJJNNoWNThmREjpybqder", key.ViewKey().String())
+	}
+}
+
 func TestFromSeed(t *testing.T) {
 	// Test case from dpc/src/account/tests.rs
 	seed := [32]byte{225, 188, 136, 113, 36, 134, 74, 147, 46, 205, 27, 245, 37, 173, 115, 101, 220, 243, 27, 56, 238, 226, 66, 152, 152, 245, 198, 104, 39, 128, 69, 183}
-	params, err := parameters.Load()
+	params, err := parameters.Load("../params/")
 	if err != nil {
 		t.Fatal(err)
 	}

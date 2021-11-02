@@ -22,16 +22,17 @@ var initialSkPrf = []byte{
 }
 
 // privateKeyPrefix is the human-readable prefix for private keys.
-var privateKeyPrefix = []byte{127, 134, 189, 116, 210, 221, 210, 137, 144}
+var privateKeyPrefix = []byte{127, 134, 189, 116, 210, 221, 210, 137, 145, 18, 253}
 
 var errInvalidSeed = errors.New("invalid seed")
 
 // PrivateKey contains the seed and relevant keys to manipulate an Aleo account.
 type PrivateKey struct {
-	Seed       []byte
-	RPkCounter uint16
-	SkSig      []byte
-	SkPrf      []byte
+	DecryptionKey []byte
+	Seed          []byte
+	RPkCounter    uint16
+	SkSig         []byte
+	SkPrf         []byte
 }
 
 // String implements the stringer interface for PrivateKey.
@@ -53,18 +54,21 @@ func ParsePrivateKey(key string) (*PrivateKey, error) {
 		return nil, fmt.Errorf("invalid key length : got %d", keyLen)
 	}
 
-	if !bytes.Equal(buf[0:9], privateKeyPrefix) {
-		return nil, errors.New("invalid prefix")
+	if !bytes.Equal(buf[0:11], privateKeyPrefix) {
+		return nil, fmt.Errorf("invalid prefix : got %v want %v", buf[0:9], privateKeyPrefix)
 	}
 
-	// First 2 bytes are the counter.
 	// Last 32 bytes are the seed.
-	counter, seed := buf[9:11], buf[11:]
+	var seed [32]byte
+	copy(seed[:], buf[11:43])
 
-	return &PrivateKey{
-		Seed:       seed,
-		RPkCounter: binary.LittleEndian.Uint16(counter),
-	}, nil
+	// TODO, move params to elsewhere.
+	params, err := parameters.Load("../params/")
+	if err != nil {
+		return nil, err
+	}
+
+	return FromSeed(seed, params.AccountSignature, params.AccountCommitment)
 }
 
 // NewSeed creates a uniformly random 32-byte account seed.
@@ -92,6 +96,8 @@ func FromSeed(seed [32]byte, sigParams *parameters.AccountSignature, commitParam
 	// A counter is an u16 value that is iterated on until a valid view key
 	// can be derived from private_key.
 	var counter uint16 = 2
+
+	var decKey []byte
 
 	// Loop until we find a valid view key, or until we reach the maximum counter.
 	for {
@@ -122,14 +128,11 @@ func FromSeed(seed [32]byte, sigParams *parameters.AccountSignature, commitParam
 
 		// Check that the coordinate is on the curve (mod scalar field on Edwards BLS12).
 		if isOnCurve(rPK) {
+			var err error
 			// Check if the private key can create a valid view key.
-			ok, err := ValidPrivateKey(skSig[:], skPrf[:], sigParams, commitParams, rPK[:])
-			if ok {
+			decKey, err = genViewKey(skSig[:], skPrf[:], sigParams, commitParams, rPK[:])
+			if err == nil {
 				break
-			}
-
-			if err != nil {
-				return nil, err
 			}
 		}
 
@@ -137,10 +140,11 @@ func FromSeed(seed [32]byte, sigParams *parameters.AccountSignature, commitParam
 	}
 
 	return &PrivateKey{
-		Seed:       seed[:],
-		RPkCounter: counter,
-		SkSig:      skSig[:],
-		SkPrf:      skPrf[:],
+		DecryptionKey: decKey,
+		Seed:          seed[:],
+		RPkCounter:    counter,
+		SkSig:         skSig[:],
+		SkPrf:         skPrf[:],
 	}, nil
 }
 
@@ -155,8 +159,13 @@ func isOnCurve(x []byte) bool {
 	return false
 }
 
-// ValidPrivateKey checks if the private key can be used to generate a valid view key.
-func ValidPrivateKey(key []byte, skPrf []byte, sigParams *parameters.AccountSignature, commitParams *parameters.AccountCommitment, rPK []byte) (bool, error) {
+func (pk *PrivateKey) ViewKey() *ViewKey {
+	fmt.Printf("%v", pk.DecryptionKey)
+	return &ViewKey{DecryptionKey: pk.DecryptionKey}
+}
+
+// genViewKey attempts to generate a valid view key.
+func genViewKey(key []byte, skPrf []byte, sigParams *parameters.AccountSignature, commitParams *parameters.AccountCommitment, rPK []byte) ([]byte, error) {
 	// Generate a Schnorr public key with the provided key and account signature params.
 	pkSig := generateSchnorrPublicKey(key, sigParams)
 
@@ -165,12 +174,12 @@ func ValidPrivateKey(key []byte, skPrf []byte, sigParams *parameters.AccountSign
 	{
 		x := pkSig.X.Bytes()
 		if err := binary.Write(&commitmentInput, binary.LittleEndian, utils.ConvertByteOrder(x[:])); err != nil {
-			return false, err
+			return nil, err
 		}
 
 		y := pkSig.Y.Bytes()
 		if err := binary.Write(&commitmentInput, binary.LittleEndian, utils.ConvertByteOrder(y[:])); err != nil {
-			return false, err
+			return nil, err
 		}
 
 		commitmentInput.Write(skPrf)
@@ -178,25 +187,25 @@ func ValidPrivateKey(key []byte, skPrf []byte, sigParams *parameters.AccountSign
 
 	commitment, err := PedersenCommitment(commitmentInput.Bytes(), commitParams.Bases, commitParams.RandomBase, rPK)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	// Check if the affine x-coordinate is on the curve.
 	if !isOnCurve(commitment) {
-		return false, nil
+		return nil, errors.New("not on curve")
 	}
 
 	// MSB check
 	accDecKey := toBits(commitment)
 	if keyLen := len(accDecKey); keyLen == 0 || keyLen < 251 {
-		return false, nil
+		return nil, errors.New("invalid view key")
 	}
 
 	for _, bit := range accDecKey[249:] {
 		if bit {
-			return false, nil
+			return nil, errors.New("invalid view key")
 		}
 	}
 
-	return true, nil
+	return commitment, nil
 }

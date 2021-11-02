@@ -68,10 +68,6 @@ type SendTransactionResponse struct {
 	Result string `json:"result"`
 }
 
-type ValidateRawTransactionResponse struct {
-	Result bool `json:"result"`
-}
-
 type CreateAccountResponse struct {
 	PrivateKey string `json:"private_key"`
 	ViewKey    string `json:"view_key"`

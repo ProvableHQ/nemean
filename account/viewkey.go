@@ -14,13 +14,12 @@ type ViewKey struct {
 	DecryptionKey []byte
 }
 
-func ParseViewKey(key string) (*ViewKey, error){
+func ParseViewKey(key string) (*ViewKey, error) {
 	buf := base58.Decode(key)
 
 	if keyLen := len(buf); keyLen != 39 {
 		return nil, fmt.Errorf("invalid key length : got %d", keyLen)
 	}
-
 
 	if !bytes.Equal(buf[0:7], viewKeyPrefix) {
 		return nil, errors.New("invalid prefix")

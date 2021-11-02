@@ -5,7 +5,7 @@ import (
 )
 
 func TestAccountCommitment(t *testing.T) {
-	res, _ := Load()
+	res, _ := Load("../params/")
 	if x := res.AccountCommitment.Bases[0][0].X.String(); x != "3300925232884904069615742184086299065053114548682773855645322903933037060492" {
 		t.Fatalf("got %s want %s", x, "3300925232884904069615742184086299065053114548682773855645322903933037060492")
 	}
