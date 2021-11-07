@@ -21,3 +21,9 @@ staticcheck:
 .PHONY: lint
 lint:
 	golint -set_exit_status ${GO_PKG_LIST}
+
+.PHONY: build
+build:
+	cd aleo && cargo build --release
+	cp aleo/target/release/libaleo.so aleo/
+	go build -ldflags="-r aleo" -o wallet cmd/wallet/main.go
