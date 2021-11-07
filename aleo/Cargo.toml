@@ -1,0 +1,25 @@
+[package]
+name = "aleo"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib" , "staticlib"]
+
+[dependencies.snarkvm-dpc]
+git = "https://github.com/AleoHQ/snarkVM.git"
+branch = "testnet2"
+default-features = true
+
+[dependencies.rand]
+version = "0.8"
+default-features = false
+features = [ "std_rng" ]
+
+[dependencies.rand_chacha]
+version = "0.3"
+
+[dependencies]
+libc = "0.2.2"
+env_logger = "0.8.4"
+log = "0.4.14"

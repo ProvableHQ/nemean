@@ -10,10 +10,12 @@ import (
 
 var viewKeyPrefix = []byte{14, 138, 223, 204, 247, 224, 122}
 
+// ViewKey is an Aleo view key.
 type ViewKey struct {
 	DecryptionKey []byte
 }
 
+// ParseViewKey parses a string encoded ViewKey.
 func ParseViewKey(key string) (*ViewKey, error) {
 	buf := base58.Decode(key)
 
@@ -37,4 +39,11 @@ func (vk ViewKey) String() string {
 	buf.Write(viewKeyPrefix)
 	binary.Write(&buf, binary.LittleEndian, vk.DecryptionKey)
 	return base58.Encode(buf.Bytes())
+}
+
+// Copy does a deep copy on ViewKey.
+func (vk ViewKey) Copy() *ViewKey {
+	newViewKey := &ViewKey{DecryptionKey: make([]byte, len(vk.DecryptionKey))}
+	copy(newViewKey.DecryptionKey[:], vk.DecryptionKey[:])
+	return newViewKey
 }
