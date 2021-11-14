@@ -15,3 +15,17 @@ func TestParseViewKey(t *testing.T) {
 		t.Fatalf("invalid stringer : got %s want %s", res.String(), k)
 	}
 }
+
+func TestParseViewKeyInvalid(t *testing.T) {
+	if _, err := ParseViewKey(""); err == nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ParseViewKey("AViewKey1abcdefghijklmnopqrstuvwxyz"); err == nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ParseViewKey("AViewKey1"); err == nil {
+		t.Fatal(err)
+	}
+}

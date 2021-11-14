@@ -38,7 +38,8 @@ func ParseAddress(addr string) (*Address, error) {
 	}
 
 	if version == bech32.Version0 {
-		return nil, fmt.Errorf("ParseAddress : %w", errAddrBech32m)
+		fmt.Printf("ParseAddress : %s\n", errAddrBech32m)
+		//return nil, fmt.Errorf("ParseAddress : %w", errAddrBech32m)
 	}
 
 	if len(data) == 0 {
@@ -55,7 +56,7 @@ func (a Address) String() string {
 	var buf bytes.Buffer
 	_ = binary.Write(&buf, binary.LittleEndian, a.EncryptionKey)
 
-	addr, _ := bech32.Encode(addrPrefix, buf.Bytes())
+	addr, _ := bech32.EncodeM(addrPrefix, buf.Bytes())
 
 	return addr
 }

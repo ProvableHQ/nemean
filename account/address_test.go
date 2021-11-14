@@ -1,11 +1,9 @@
 package account
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestParseAddress(t *testing.T) {
-	addr := "aleo1ag4alvc4g7d4apzgvr5f4jt44l0aezev2dx8m0klgwypnh9u5uxs42rclr"
+	addr := "aleo1d5hg2z3ma00382pngntdp68e74zv54jdxy249qhaujhks9c72yrs33ddah"
 	res, err := ParseAddress(addr)
 	if err != nil {
 		t.Fatal(err)
@@ -13,5 +11,19 @@ func TestParseAddress(t *testing.T) {
 
 	if addr != res.String() {
 		t.Fatalf("invalid stringer : got %s want %s", res.String(), addr)
+	}
+}
+
+func TestParseAddressInvalid(t *testing.T) {
+	if _, err := ParseAddress(""); err == nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ParseAddress("aleo1abcdefghijklmnopqrstuvwxyz"); err == nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ParseAddress("aleo1"); err == nil {
+		t.Fatal(err)
 	}
 }

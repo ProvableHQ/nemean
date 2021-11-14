@@ -8,8 +8,9 @@ crate-type = ["cdylib" , "staticlib"]
 
 [dependencies.snarkvm-dpc]
 git = "https://github.com/AleoHQ/snarkVM.git"
-branch = "testnet2"
+#branch = "testnet2"
 default-features = true
+rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
 
 [dependencies.rand]
 version = "0.8"

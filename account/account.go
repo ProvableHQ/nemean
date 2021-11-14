@@ -1,5 +1,9 @@
 package account
 
+import (
+	"github.com/pinestreetlabs/aleo-wallet-sdk/network"
+)
+
 // Account encompasses an Aleo Account.
 type Account struct {
 	privateKey *PrivateKey
@@ -23,8 +27,11 @@ func (a *Account) PrivateKey() *PrivateKey {
 }
 
 // FromSeed creates a new Account with the given 32 byte seed.
-func FromSeed(seed [32]byte) (*Account, error) {
-	return fromSeed(seed)
+func FromSeed(seed [32]byte, params *network.Params) (*Account, error) {
+	return fromSeed(seed, params)
 }
 
-// TODO FromPrivateKey(..) Account
+// FromPrivateKey creates a new Account with the given privateKey.
+func FromPrivateKey(privateKey string, params *network.Params) (*Account, error) {
+	return fromPrivateKey(privateKey)
+}
