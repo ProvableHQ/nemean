@@ -8,7 +8,7 @@ use rand::{rngs::StdRng, SeedableRng};
 use snarkvm_dpc::{
     network::testnet2::Testnet2, Address, Network, Payload, Record, RecordCiphertext, ViewKey,
 };
-use snarkvm_utilities::{ToBytes, FromBytes, UniformRand};
+use snarkvm_utilities::{FromBytes, ToBytes, UniformRand};
 use std::ffi::{CStr, CString};
 use std::{slice, str::FromStr};
 
@@ -185,7 +185,6 @@ pub extern "C" fn record_value(ptr: *mut Record<Testnet2>) -> u64 {
     value
 }
 
-
 #[repr(C)]
 pub struct Buffer {
     data: *mut u8,
@@ -199,11 +198,11 @@ pub extern "C" fn record_payload(ptr: *mut Record<Testnet2>) -> Buffer {
         &mut *ptr
     };
     let payload = record.payload();
-     let mut buf = payload.to_bytes_le().unwrap();
-        let data = buf.as_mut_ptr();
-        let len = buf.len();
-        std::mem::forget(buf);
-        Buffer { data, len }
+    let mut buf = payload.to_bytes_le().unwrap();
+    let data = buf.as_mut_ptr();
+    let len = buf.len();
+    std::mem::forget(buf);
+    Buffer { data, len }
 }
 
 #[no_mangle]

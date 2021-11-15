@@ -18,6 +18,9 @@ git = "https://github.com/AleoHQ/snarkVM.git"
 default-features = true
 rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
 
+[dependencies.hex]
+version = "0.4.3"
+
 [dependencies.rand]
 version = "0.8"
 default-features = false

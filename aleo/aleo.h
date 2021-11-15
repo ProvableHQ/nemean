@@ -37,3 +37,9 @@ char *record_commitment(const record_t *);
 char *record_program_id(const record_t *);
 char *encrypt_record(const record_t *, const uint8_t *randomness, size_t randomness_len);
 char *decrypt_record(const char *ciphertext, const char *view_key);
+
+/* transaction */
+char *new_coinbase_transaction(const char *addr,
+                              uint64_t val,
+                              const uint8_t *randomness,
+                              size_t randomness_len);

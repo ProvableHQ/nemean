@@ -25,10 +25,7 @@ pub extern "C" fn from_sk(sk: *const libc::c_char) -> *mut Account<Testnet2> {
 }
 
 #[no_mangle]
-pub extern "C" fn from_seed(
-    n: *const u8,
-    len: libc::size_t
-) -> *mut Account<Testnet2> {
+pub extern "C" fn from_seed(n: *const u8, len: libc::size_t) -> *mut Account<Testnet2> {
     let buf = unsafe {
         assert!(!n.is_null());
 

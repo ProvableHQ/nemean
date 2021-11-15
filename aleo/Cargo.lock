@@ -27,6 +27,7 @@ name = "aleo"
 version = "0.1.0"
 dependencies = [
  "env_logger",
+ "hex",
  "libc",
  "log",
  "rand",
