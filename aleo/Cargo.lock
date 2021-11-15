@@ -32,6 +32,7 @@ dependencies = [
  "rand",
  "rand_chacha",
  "snarkvm-dpc",
+ "snarkvm-utilities",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
 package account
 
 /*
-crypto.go contains the bindings to the underlying snarkvm aleo package.
+aleo.go contains the bindings to the underlying snarkvm aleo package.
 To avoid upstream changes and re-implementing the snarkvm-curves crate in Go, we use Rust FFI.
 */
 
@@ -58,7 +58,7 @@ func fromPrivateKey(sk string) (*Account, error) {
 }
 
 func fromSeed(seed [32]byte, params *network.Params) (*Account, error) {
-	res := C.from_seed((*C.uint8_t)(unsafe.Pointer(&seed[0])), C.size_t(32), C.CString(string(params.Network())))
+	res := C.from_seed((*C.uint8_t)(unsafe.Pointer(&seed[0])), C.size_t(32))
 	if res == nil {
 		return nil, handleCError()
 	}

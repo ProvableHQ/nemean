@@ -3,12 +3,12 @@ c_error spawns a local thread to handle error messages such that the caller can 
 Relies on https://michael-f-bryan.github.io/rust-ffi-guide/errors/index.html
 */
 
-thread_local!{
+thread_local! {
     static LAST_ERROR: std::cell::RefCell<Option<Box<dyn std::error::Error>>> =  std::cell::RefCell::new(None);
 }
 
 pub fn update_last_error<E: std::error::Error + 'static>(err: E) {
-   {
+    {
         let mut cause = err.source();
         while let Some(parent_err) = cause {
             cause = parent_err.source();
@@ -34,7 +34,10 @@ pub extern "C" fn last_error_length() -> libc::c_int {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn last_error_message(buffer: *mut libc::c_char, length: libc::c_int) -> libc::c_int {
+pub unsafe extern "C" fn last_error_message(
+    buffer: *mut libc::c_char,
+    length: libc::c_int,
+) -> libc::c_int {
     if buffer.is_null() {
         return -1;
     }
