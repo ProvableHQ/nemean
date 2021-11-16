@@ -43,3 +43,7 @@ char *new_coinbase_transaction(const char *addr,
                               uint64_t val,
                               const uint8_t *randomness,
                               size_t randomness_len);
+
+char *new_transfer_transaction(record_t *in_records,
+                              record_t *out_records,
+                              const char *private_key);
