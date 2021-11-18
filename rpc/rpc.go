@@ -120,9 +120,9 @@ func (c *Client) GetBestBlockHash() (string, error) {
 	return res, nil
 }
 
-// GetBlock returns information about a block from a block hash.
-func (c *Client) GetBlock(block string) (*GetBlockResponse, error) {
-	param, err := json.Marshal(block)
+// GetBlock returns information about a block from a block height.
+func (c *Client) GetBlock(blockNumber int64) (*GetBlockResponse, error) {
+	param, err := json.Marshal(blockNumber)
 	if err != nil {
 		return nil, err
 	}

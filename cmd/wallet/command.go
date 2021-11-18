@@ -11,3 +11,19 @@ var newAccountCommand = cli.Command{
 	`,
 	Action: newAccount,
 }
+
+var getBlockCommand = cli.Command{
+	Name:     "getBlock",
+	Category: "rpc",
+	Usage:    "Get a block.",
+	Description: `
+	Gets a block from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:  "height",
+			Usage: "block height",
+		},
+	},
+	Action: getBlock,
+}

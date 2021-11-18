@@ -16,18 +16,19 @@ type Result struct {
 }
 
 type GetBlockResponse struct {
-	Confirmations          int64    `json:"confirmations"`
-	DifficultyTarget       int64    `json:"difficulty_target"`
-	Hash                   string   `json:"hash"`
-	Height                 int64    `json:"height"`
-	MerkleRoot             int64    `json:"merkle_root"`
-	Nonce                  int64    `json:"nonce"`
-	PedersenMerkleRootHash int64    `json:"pedersen_merkle_root_hash"`
-	PreviousBlockHash      string   `json:"previous_block_hash"`
-	Proof                  string   `json:"string"`
-	Size                   int64    `json:"size"`
-	Time                   int64    `json:"time"`
-	Transactions           []string `json:"transactions"`
+	BlockHash string `json:"block_hash"`
+	//Confirmations          int64    `json:"confirmations"`
+	//DifficultyTarget       int64    `json:"difficulty_target"`
+	//Hash                   string   `json:"hash"`
+	//Height                 int64    `json:"height"`
+	//MerkleRoot             int64    `json:"merkle_root"`
+	//Nonce                  int64    `json:"nonce"`
+	//PedersenMerkleRootHash int64    `json:"pedersen_merkle_root_hash"`
+	//PreviousBlockHash      string   `json:"previous_block_hash"`
+	//Proof                  string   `json:"string"`
+	//Size                   int64    `json:"size"`
+	//Time                   int64    `json:"time"`
+	//Transactions           []string `json:"transactions"`
 }
 
 type GetBlockTemplateResponse struct {
