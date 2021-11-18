@@ -14,6 +14,18 @@ type Record struct {
 	commitmentRandomness string
 }
 
+// NewRecord returns a new Record from the given inputs.
+func NewRecord(owner *account.Address, value int64, payload []byte, programID string, serialNumberNonce string, commitmentRandomness string) *Record {
+	return &Record{
+		owner:                owner,
+		value:                value,
+		payload:              payload,
+		programID:            programID,
+		serialNumberNonce:    serialNumberNonce,
+		commitmentRandomness: commitmentRandomness,
+	}
+}
+
 func (r Record) Owner() *account.Address {
 	return r.owner.Copy()
 }
