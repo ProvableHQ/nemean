@@ -39,10 +39,10 @@ func ParsePrivateKey(key string) (*PrivateKey, error) {
 }
 
 // NewSeed creates a uniformly random 32-byte account seed.
-func NewSeed() ([]byte, error) {
-	d := make([]byte, 32)
-	if _, err := rand.Read(d); err != nil {
-		return nil, err
+func NewSeed() ([32]byte, error) {
+	var d [32]byte
+	if _, err := rand.Read(d[:]); err != nil {
+		return [32]byte{}, err
 	}
 	return d, nil
 }
