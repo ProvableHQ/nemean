@@ -16,7 +16,8 @@ type Result struct {
 }
 
 type GetBlockResponse struct {
-	BlockHash string `json:"block_hash"`
+	BlockHash         string `json:"block_hash"`
+	PreviousBlockHash string `json:"previous_block_hash"`
 	//Confirmations          int64    `json:"confirmations"`
 	//DifficultyTarget       int64    `json:"difficulty_target"`
 	//Hash                   string   `json:"hash"`

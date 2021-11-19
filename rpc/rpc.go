@@ -80,9 +80,14 @@ func newRequestBody(rpcVersion int, id string, method string, params []json.RawM
 
 // TODO decoderawtransaction
 
-// GetBlockCount returns the number of blocks in the best valid chain.
-func (c *Client) GetBlockCount() (int64, error) {
-	req, err := newRequestBody(2, "", getBlockCountMethod, nil)
+// GetBlockHeight the block height for the given the block hash.
+func (c *Client) GetBlockHeight(blockHash string) (int64, error) {
+	param, err := json.Marshal(blockHash)
+	if err != nil {
+		return 0, err
+	}
+
+	req, err := newRequestBody(2, "", getBlockHeightMethod, []json.RawMessage{param})
 	if err != nil {
 		return 0, err
 	}
@@ -326,6 +331,49 @@ func (c *Client) ValidateRawTransaction(txn string) (bool, error) {
 	var res bool
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return false, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) LatestLedgerRoot() (string, error) {
+	req, err := newRequestBody(2, "", latestLedgerRootMethod, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return "", err
+	}
+
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return "", err
+	}
+
+	return res, nil
+}
+
+func (c *Client) GetLedgerProof(recordCommitment string) (string, error) {
+	param, err := json.Marshal(recordCommitment)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := newRequestBody(2, "", getLedgerProofMethod, []json.RawMessage{param})
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return "", err
+	}
+
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return "", err
 	}
 
 	return res, nil

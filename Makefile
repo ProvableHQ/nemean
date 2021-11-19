@@ -26,4 +26,4 @@ lint:
 build:
 	cd aleo && cargo build --release
 	cp aleo/target/release/libaleo.so aleo/
-	go build -ldflags="-r aleo" -o wallet cmd/wallet/*.go
+	go build -ldflags="-r aleo" -o nemean cmd/nemean/*.go

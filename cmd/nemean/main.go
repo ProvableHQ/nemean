@@ -25,6 +25,11 @@ func main() {
 		newAccountCommand,
 		getBlockCommand,
 		newTransactionCommand,
+		getBlockHashCommand,
+		getBlockHeightCommand,
+		latestLedgerRootCommand,
+		sendTransactionCommand,
+		getLedgerProofCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
