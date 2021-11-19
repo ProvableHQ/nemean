@@ -24,6 +24,7 @@ func main() {
 	app.Commands = []cli.Command{
 		newAccountCommand,
 		getBlockCommand,
+		newTransactionCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
