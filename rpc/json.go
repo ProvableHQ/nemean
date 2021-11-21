@@ -15,21 +15,25 @@ type Result struct {
 	ID     string          `json:"id"`
 }
 
-type GetBlockResponse struct {
-	BlockHash         string `json:"block_hash"`
-	PreviousBlockHash string `json:"previous_block_hash"`
-	//Confirmations          int64    `json:"confirmations"`
-	//DifficultyTarget       int64    `json:"difficulty_target"`
-	//Hash                   string   `json:"hash"`
-	//Height                 int64    `json:"height"`
-	//MerkleRoot             int64    `json:"merkle_root"`
-	//Nonce                  int64    `json:"nonce"`
-	//PedersenMerkleRootHash int64    `json:"pedersen_merkle_root_hash"`
-	//PreviousBlockHash      string   `json:"previous_block_hash"`
-	//Proof                  string   `json:"string"`
-	//Size                   int64    `json:"size"`
-	//Time                   int64    `json:"time"`
-	//Transactions           []string `json:"transactions"`
+type Block struct {
+	BlockHash         string        `json:"block_hash"`
+	PreviousBlockHash string        `json:"previous_block_hash"`
+	Transactions      []Transaction `json:"transactions"`
+	BlockHeader       BlockHeader   `json:"header"`
+}
+
+type BlockHeader struct {
+	PrevLedgerRoot   string `json:"previous_ledger_root"`
+	TransactionsRoot string `json:"transactions_root"`
+	Proof            string `json:"string"`
+	Metadata         string `json:"metadata"`
+}
+
+type BlockHeaderMetadata struct {
+	DifficultyTarget int64  `json:"difficulty_target"`
+	Height           int64  `json:"height"`
+	Nonce            string `json:"nonce"`
+	Timestamp        int64  `json:"timestamp"`
 }
 
 type GetBlockTemplateResponse struct {
@@ -49,21 +53,33 @@ type GetRawTransactionResult struct {
 	Result string `json:"result"`
 }
 
-type GetTransactionInfoResponse struct {
-	TxId                string      `json:"txid"`
-	Size                int         `json:"size"`
-	OldSerialNumbers    []int       `json:"old_serial_numbers"`
-	NewCommitments      []string    `json:"new_commitments"`
-	Memo                string      `json:"memo"`
-	NetworkID           int         `json:"network_id"`
-	Digest              string      `json:"digest"`
-	TransactionProof    string      `json:"transaction_proof"`
-	ProgramCommitment   string      `json:"program_commitment"`
-	LocalDataRoot       string      `json:"local_data_root"`
-	ValueBalance        int         `json:"value_balance"`
-	Signatures          []string    `json:"signatures"`
-	EncryptedRecords    []string    `json:"encrypted_records"`
-	TransactionMetadata interface{} `json:"transaction_metadata"`
+type GetTransactionResponse struct {
+	Transaction Transaction         `json:"transaction"`
+	Metadata    TransactionMetadata `json:"metadata"`
+}
+
+type TransactionMetadata struct {
+	BlockHash        string `json:"block_hash"`
+	BlockHeight      int64  `json:"block_height"`
+	BlockTimestamp   int64  `json:"block_timestamp"`
+	TransactionIndex int64  `json:"transaction_index"`
+}
+
+type Transaction struct {
+	TxId           string        `json:"transaction_id"`
+	LedgerRoot     string        `json:"ledger_root"`
+	InnerCircuitID string        `json:"inner_circuit_id"`
+	Transitions    []Transitions `json:"transitions"`
+}
+
+type Transitions struct {
+	CiphertextIDs []string `json:"ciphertext_ids"`
+	Ciphertexts   []string `json:"ciphertexts"`
+	Commitments   []string `json:"commitments"`
+	Proof         string   `json:"proof"`
+	SerialNumbers string   `json:"serial_numbers"`
+	ID            string   `json:"transition_id"`
+	ValueBalance  int64    `json:"value_balance"`
 }
 
 type SendTransactionResponse struct {

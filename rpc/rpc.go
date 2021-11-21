@@ -4,6 +4,7 @@ package rpc
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -126,7 +127,7 @@ func (c *Client) GetBestBlockHash() (string, error) {
 }
 
 // GetBlock returns information about a block from a block height.
-func (c *Client) GetBlock(blockNumber int64) (*GetBlockResponse, error) {
+func (c *Client) GetBlock(blockNumber int64) (*Block, error) {
 	param, err := json.Marshal(blockNumber)
 	if err != nil {
 		return nil, err
@@ -142,7 +143,7 @@ func (c *Client) GetBlock(blockNumber int64) (*GetBlockResponse, error) {
 		return nil, err
 	}
 
-	var res GetBlockResponse
+	var res Block
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
@@ -240,8 +241,8 @@ func (c *Client) GetRawTransaction(txID string) (string, error) {
 	return res, nil
 }
 
-// GetTransactionInfo returns information about a transaction from a transaction id.
-func (c *Client) GetTransactionInfo(txID string) (*GetTransactionInfoResponse, error) {
+// GetTransaction returns a transaction with metadata given the transaction ID.
+func (c *Client) GetTransaction(txID string) (*GetTransactionResponse, error) {
 	param, err := json.Marshal(txID)
 	if err != nil {
 		return nil, err
@@ -257,7 +258,7 @@ func (c *Client) GetTransactionInfo(txID string) (*GetTransactionInfoResponse, e
 		return nil, err
 	}
 
-	var res GetTransactionInfoResponse
+	var res GetTransactionResponse
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
@@ -379,38 +380,254 @@ func (c *Client) GetLedgerProof(recordCommitment string) (string, error) {
 	return res, nil
 }
 
-//func (c *Client) CreateTransaction(keys []string, kernel string) (*CreateTransactionResponse, error) {
-//	params := make([]json.RawMessage, 0)
-//
-//	{
-//		// TODO
-//		for _, key := range keys {
-//			param, err := json.Marshal(key)
-//			if err != nil {
-//				return false, err
-//			}
-//		}
-//		params = append(params, param)
-//	}
-//
-//	req, err := newRequestBody(2, "", validateRawTransactionMethod, []json.RawMessage{param})
-//	if err != nil {
-//		return false, err
-//	}
-//
-//	resp, err := newRequest(c, req)
-//	if err != nil {
-//		return false, err
-//	}
-//
-//	var res bool
-//	if err := json.Unmarshal(resp.Result, &res); err != nil {
-//		return false, err
-//	}
-//
-//	return res, nil
-//}
+func (c *Client) GetCiphertext(id string) (string, error) {
+	param, err := json.Marshal(id)
+	if err != nil {
+		return "", err
+	}
 
-//func (c *Client) CreateRawTransaction(records []string, keys []string, recipients []string, memo string, networkID int) {
-//
-//}
+	req, err := newRequestBody(2, "", getCiphertextMethod, []json.RawMessage{param})
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return "", err
+	}
+
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return "", err
+	}
+
+	return res, nil
+}
+
+func (c *Client) GetBlockHashes(start, end int64) ([]string, error) {
+	if start > end {
+		return nil, errors.New("start > end")
+	}
+
+	startParam, err := json.Marshal(start)
+	if err != nil {
+		return nil, err
+	}
+
+	endParam, err := json.Marshal(end)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getBlockHashesMethod, []json.RawMessage{startParam, endParam})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) GetBlockHeader(height int64) (*BlockHeader, error) {
+	param, err := json.Marshal(height)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getBlockHeaderMethod, []json.RawMessage{param})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res BlockHeader
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (c *Client) GetBlocks(start, end int64) ([]Block, error) {
+	if start > end {
+		return nil, errors.New("start > end")
+	}
+
+	startParam, err := json.Marshal(start)
+	if err != nil {
+		return nil, err
+	}
+
+	endParam, err := json.Marshal(end)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getBlocksMethod, []json.RawMessage{startParam, endParam})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []Block
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) GetBlockTransactions(height int64) ([]*Transaction, error) {
+	param, err := json.Marshal(height)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getBlockTransactionsMethod, []json.RawMessage{param})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*Transaction, 0)
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) LatestBlock() (*Block, error) {
+	req, err := newRequestBody(2, "", latestBlockMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res Block
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (c *Client) LatestBlockHash() (string, error) {
+	req, err := newRequestBody(2, "", latestBlockHashMethod, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return "", err
+	}
+
+	var res string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return "", err
+	}
+
+	return res, nil
+}
+
+func (c *Client) LatestBlockHeader() (*BlockHeader, error) {
+	req, err := newRequestBody(2, "", latestBlockHeaderMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res BlockHeader
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (c *Client) LatestBlockHeight() (int64, error) {
+	req, err := newRequestBody(2, "", latestBlockHeightMethod, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return 0, err
+	}
+
+	var res int64
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return 0, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) LatestBlockTransactions() ([]*Transaction, error) {
+	req, err := newRequestBody(2, "", latestBlockTransactionsMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*Transaction, 0)
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) GetConnectedPeers() ([]string, error) {
+	req, err := newRequestBody(2, "", getConnectedPeersMethod, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []string
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
