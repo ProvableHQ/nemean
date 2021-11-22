@@ -1,6 +1,9 @@
 package rpc
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"math/big"
+)
 
 type Request struct {
 	Method     string            `json:"method"`
@@ -15,25 +18,29 @@ type Result struct {
 	ID     string          `json:"id"`
 }
 
+type Transactions struct {
+	Transactions []Transaction `json:"transactions"`
+}
+
 type Block struct {
-	BlockHash         string        `json:"block_hash"`
-	PreviousBlockHash string        `json:"previous_block_hash"`
-	Transactions      []Transaction `json:"transactions"`
-	BlockHeader       BlockHeader   `json:"header"`
+	BlockHash         string       `json:"block_hash"`
+	PreviousBlockHash string       `json:"previous_block_hash"`
+	Transactions      Transactions `json:"transactions"`
+	BlockHeader       BlockHeader  `json:"header"`
 }
 
 type BlockHeader struct {
-	PrevLedgerRoot   string `json:"previous_ledger_root"`
-	TransactionsRoot string `json:"transactions_root"`
-	Proof            string `json:"string"`
-	Metadata         string `json:"metadata"`
+	PrevLedgerRoot   string              `json:"previous_ledger_root"`
+	TransactionsRoot string              `json:"transactions_root"`
+	Proof            string              `json:"string"`
+	Metadata         BlockHeaderMetadata `json:"metadata"`
 }
 
 type BlockHeaderMetadata struct {
-	DifficultyTarget int64  `json:"difficulty_target"`
-	Height           int64  `json:"height"`
-	Nonce            string `json:"nonce"`
-	Timestamp        int64  `json:"timestamp"`
+	DifficultyTarget big.Int `json:"difficulty_target"`
+	Height           int64   `json:"height"`
+	Nonce            string  `json:"nonce"`
+	Timestamp        int64   `json:"timestamp"`
 }
 
 type GetBlockTemplateResponse struct {
@@ -77,7 +84,7 @@ type Transitions struct {
 	Ciphertexts   []string `json:"ciphertexts"`
 	Commitments   []string `json:"commitments"`
 	Proof         string   `json:"proof"`
-	SerialNumbers string   `json:"serial_numbers"`
+	SerialNumbers []string `json:"serial_numbers"`
 	ID            string   `json:"transition_id"`
 	ValueBalance  int64    `json:"value_balance"`
 }

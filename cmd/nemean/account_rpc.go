@@ -142,6 +142,27 @@ func getBlockHeight(ctx *cli.Context) error {
 	return nil
 }
 
+func latestBlockHeight(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.LatestBlockHeight()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
 func sendTransaction(ctx *cli.Context) error {
 	profile, err := getProfile(ctx)
 	if err != nil {

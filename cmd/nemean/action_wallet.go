@@ -21,12 +21,12 @@ func newAccount(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Println("==============")
-	fmt.Println("created account")
-	fmt.Println(acc.PrivateKey().String())
-	fmt.Println(acc.ViewKey().String())
-	fmt.Println(acc.Address().String())
-	fmt.Println("==============")
+	resp, err := json.Marshal(acc)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
 	return nil
 }
 
@@ -61,7 +61,7 @@ func newTransaction(ctx *cli.Context) error {
 	return nil
 }
 
-func decryptRecord(ctx cli.Context) error {
+func decryptRecord(ctx *cli.Context) error {
 	vk, err := account.ParseViewKey(ctx.String("viewkey"))
 	if err != nil {
 		return err

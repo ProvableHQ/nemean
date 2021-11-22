@@ -28,6 +28,7 @@ func main() {
 		getBlockHashesCommand,
 		getBlockHeaderCommand,
 		getBlockHeightCommand,
+		latestBlockHeightCommand,
 		getTransactionCommand,
 		newTransactionCommand,
 		latestLedgerRootCommand,

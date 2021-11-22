@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/json"
 	"github.com/pinestreetlabs/aleo-wallet-sdk/network"
 )
 
@@ -9,6 +10,49 @@ type Account struct {
 	privateKey *PrivateKey
 	viewKey    *ViewKey
 	address    *Address
+}
+
+type AccountJSON struct {
+	PrivateKey string
+	ViewKey    string
+	Address    string
+}
+
+func (a *Account) MarshalJSON() ([]byte, error) {
+	return json.Marshal(AccountJSON{
+		PrivateKey: a.privateKey.String(),
+		ViewKey:    a.viewKey.String(),
+		Address:    a.address.String(),
+	})
+}
+
+func (a *Account) UnmarshalJSON(b []byte) error {
+	temp := &AccountJSON{}
+
+	if err := json.Unmarshal(b, &temp); err != nil {
+		return err
+	}
+
+	address, err := ParseAddress(temp.Address)
+	if err != nil {
+		return err
+	}
+
+	viewKey, err := ParseViewKey(temp.ViewKey)
+	if err != nil {
+		return err
+	}
+
+	privateKey, err := ParsePrivateKey(temp.PrivateKey)
+	if err != nil {
+		return err
+	}
+
+	a.privateKey = privateKey
+	a.viewKey = viewKey
+	a.address = address
+
+	return nil
 }
 
 // ViewKey returns a copy of the Account's ViewKey.

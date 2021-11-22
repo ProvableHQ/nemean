@@ -56,7 +56,7 @@ var newTransactionCommand = cli.Command{
 }
 
 var getBlockCommand = cli.Command{
-	Name:     "get_block",
+	Name:     "getblock",
 	Category: "rpc",
 	Usage:    "Get a block.",
 	Description: `
@@ -146,7 +146,7 @@ var getTransactionCommand = cli.Command{
 }
 
 var getBlockHeightCommand = cli.Command{
-	Name:     "get_block_height",
+	Name:     "getblockheight",
 	Category: "rpc",
 	Usage:    "Get a block height.",
 	Description: `
@@ -160,6 +160,16 @@ var getBlockHeightCommand = cli.Command{
 		},
 	},
 	Action: getBlockHeight,
+}
+
+var latestBlockHeightCommand = cli.Command{
+	Name:     "latestblockheight",
+	Category: "rpc",
+	Usage:    "Get the latest block height.",
+	Description: `
+	Gets the latest block height from SnarkOS.
+	`,
+	Action: latestBlockHeight,
 }
 
 var sendTransactionCommand = cli.Command{
