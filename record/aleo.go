@@ -1,8 +1,8 @@
 package record
 
 /*
-#cgo LDFLAGS: -L../aleo -laleo
-#include "../aleo/aleo.h"
+#cgo LDFLAGS: -L/usr/lib -laleo
+#include <aleo.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

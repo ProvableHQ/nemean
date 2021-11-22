@@ -111,7 +111,12 @@ func getTransaction(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%s\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }

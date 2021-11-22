@@ -25,5 +25,9 @@ lint:
 .PHONY: build
 build:
 	cd aleo && cargo build --release
-	cp aleo/target/release/libaleo.so aleo/
 	go build -ldflags="-r aleo" -o nemean cmd/nemean/*.go
+
+.PHONY: install
+install:
+	cp aleo/target/release/libaleo.so /usr/lib/libaleo.so
+	cp aleo/aleo.h /usr/include/aleo.h

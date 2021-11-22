@@ -13,6 +13,8 @@ The cli provides an RPC client to communicate with SnarkOS:
 
     make build
 
+    make install
+
     ./nemean
 
 Nemean can also be used as a library to handle wallet management.
