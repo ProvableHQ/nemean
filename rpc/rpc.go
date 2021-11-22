@@ -79,8 +79,6 @@ func newRequestBody(rpcVersion int, id string, method string, params []json.RawM
 	return json.Marshal(req)
 }
 
-// TODO decoderawtransaction
-
 // GetBlockHeight the block height for the given the block hash.
 func (c *Client) GetBlockHeight(blockHash string) (int64, error) {
 	param, err := json.Marshal(blockHash)

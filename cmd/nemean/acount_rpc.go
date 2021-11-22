@@ -48,12 +48,70 @@ func getBlockHash(ctx *cli.Context) error {
 		return err
 	}
 
-	body, err := json.Marshal(resp)
+	fmt.Printf("%s\n", resp)
+
+	return nil
+}
+
+func getBlockHashes(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%s\n", body)
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetBlockHashes(ctx.Int64("start"), ctx.Int64("end"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+
+	return nil
+}
+
+func getBlockHeader(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetBlockHeader(ctx.Int64("height"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+
+	return nil
+}
+
+func getTransaction(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetTransaction(ctx.String("id"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
 
 	return nil
 }
@@ -74,12 +132,7 @@ func getBlockHeight(ctx *cli.Context) error {
 		return err
 	}
 
-	body, err := json.Marshal(resp)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("%s\n", body)
+	fmt.Printf("%d\n", resp)
 
 	return nil
 }

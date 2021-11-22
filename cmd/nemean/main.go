@@ -24,12 +24,16 @@ func main() {
 	app.Commands = []cli.Command{
 		newAccountCommand,
 		getBlockCommand,
-		newTransactionCommand,
 		getBlockHashCommand,
+		getBlockHashesCommand,
+		getBlockHeaderCommand,
 		getBlockHeightCommand,
+		getTransactionCommand,
+		newTransactionCommand,
 		latestLedgerRootCommand,
 		sendTransactionCommand,
 		getLedgerProofCommand,
+		decryptRecordCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)

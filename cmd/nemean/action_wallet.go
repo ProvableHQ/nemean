@@ -60,3 +60,18 @@ func newTransaction(ctx *cli.Context) error {
 	fmt.Println(txn)
 	return nil
 }
+
+func decryptRecord(ctx cli.Context) error {
+	vk, err := account.ParseViewKey(ctx.String("viewkey"))
+	if err != nil {
+		return err
+	}
+
+	rec, err := record.DecryptRecord(ctx.String("ciphertext"), vk)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(rec)
+	return nil
+}

@@ -89,6 +89,62 @@ var getBlockHashCommand = cli.Command{
 	Action: getBlockHash,
 }
 
+var getBlockHashesCommand = cli.Command{
+	Name:     "get_block_hashes",
+	Category: "rpc",
+	Usage:    "Get a block hashes.",
+	Description: `
+	Gets block hashes from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "start",
+			Usage:    "start block height",
+			Required: true,
+		},
+		cli.Int64Flag{
+			Name:     "end",
+			Usage:    "end block height",
+			Required: true,
+		},
+	},
+	Action: getBlockHashes,
+}
+
+var getBlockHeaderCommand = cli.Command{
+	Name:     "get_block_header",
+	Category: "rpc",
+	Usage:    "Get a block header.",
+	Description: `
+	Gets a block header from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "height",
+			Usage:    "block height",
+			Required: true,
+		},
+	},
+	Action: getBlockHeader,
+}
+
+var getTransactionCommand = cli.Command{
+	Name:     "get_transaction",
+	Category: "rpc",
+	Usage:    "Get a transaction.",
+	Description: `
+	Gets a transaction from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "id",
+			Usage:    "transaction_id",
+			Required: true,
+		},
+	},
+	Action: getTransaction,
+}
+
 var getBlockHeightCommand = cli.Command{
 	Name:     "get_block_height",
 	Category: "rpc",
@@ -148,4 +204,26 @@ var getLedgerProofCommand = cli.Command{
 		},
 	},
 	Action: getLedgerProof,
+}
+
+var decryptRecordCommand = cli.Command{
+	Name:     "decrypt_record",
+	Category: "wallet",
+	Usage:    "Decrypts a record.",
+	Description: `
+	Decrypts a record using a view key.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "ciphertext",
+			Usage:    "The ciphertext of the record.",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:     "viewkey",
+			Usage:    "The view key that can decrypt the record.",
+			Required: true,
+		},
+	},
+	Action: decryptRecord,
 }
