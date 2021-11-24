@@ -9,7 +9,7 @@ const (
 	getBlockTemplateMethod         = "getblocktemplate"
 	getConnectionCountMethod       = "getconnectioncount"
 	getRawTransactionMethod        = "getrawtransaction"
-	getTransactionInfoMethod       = "gettransactioninfo"
+	getTransactionMethod           = "gettransaction"
 	sendTransactionMethod          = "sendtransaction"
 	validateRawTransactionMethod   = "validaterawtransaction"
 	createAccountMethod            = "createaccount"

@@ -24,16 +24,25 @@ pub extern "C" fn new_input_record(
     let c_addr = unsafe {
         assert!(!addr.is_null());
 
-        CStr::from_ptr(addr)
+        CStr::from_ptr(addr).to_str().unwrap()
     };
-    let address = Address::<Testnet2>::from_str(c_addr.to_str().unwrap()).unwrap();
+
+    let address = match Address::<Testnet2>::from_str(c_addr) {
+        Ok(address) => address,
+        Err(error) => {
+            c_error::update_last_error(error);
+            return std::ptr::null_mut();
+        }
+    };
 
     let c_rng = unsafe {
         assert!(!randomness.is_null());
         slice::from_raw_parts(randomness, randomness_len as usize)
+            .try_into()
+            .unwrap()
     };
 
-    let mut rng: StdRng = SeedableRng::from_seed(c_rng.try_into().unwrap());
+    let mut rng: StdRng = SeedableRng::from_seed(c_rng);
 
     let c_payload = unsafe {
         assert!(!payload.is_null());
@@ -41,10 +50,18 @@ pub extern "C" fn new_input_record(
         slice::from_raw_parts(payload, Testnet2::RECORD_PAYLOAD_SIZE_IN_BYTES)
     };
 
+    let record_payload = match Payload::from_bytes_le(&c_payload) {
+        Ok(payload) => payload,
+        _ => {
+            c_error::update_last_error(snarkvm_utilities::error("cannot read from payload"));
+            return std::ptr::null_mut();
+        }
+    };
+
     let record = match Record::new_input(
         address,
         val as u64,
-        Payload::from_bytes_le(&c_payload).unwrap(),
+        record_payload,
         *Testnet2::noop_program_id(),
         UniformRand::rand(&mut rng),
         UniformRand::rand(&mut rng),
@@ -160,7 +177,13 @@ pub extern "C" fn decrypt_record(
     let view_key = ViewKey::<Testnet2>::from_str(c_view_key.to_str().unwrap()).unwrap();
 
     let ciphertext = RecordCiphertext::from_str(c_ciphertext.to_str().unwrap()).unwrap();
-    let record = ciphertext.decrypt(&view_key).unwrap();
+    let record = match ciphertext.decrypt(&view_key) {
+        Ok(rec) => rec,
+        _ => {
+            c_error::update_last_error(snarkvm_utilities::error("cannot decrypt ciphertext"));
+            return std::ptr::null_mut();
+        }
+    };
     Box::into_raw(Box::new(record))
 }
 

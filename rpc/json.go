@@ -12,9 +12,15 @@ type Request struct {
 	RpcVersion string            `json:"jsonrpc"`
 }
 
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    string `json:"data"`
+}
+
 type Result struct {
 	Result json.RawMessage `json:"result"`
-	Error  string          `json:"error"`
+	Error  *Error          `json:"error,omitempty"`
 	ID     string          `json:"id"`
 }
 

@@ -62,7 +62,7 @@ func newRequest(client *Client, body []byte) (*Result, error) {
 		return nil, err
 	}
 
-	if len(result.Error) > 0 {
+	if result.Error != nil {
 		return nil, fmt.Errorf("%v", result.Error)
 	}
 
@@ -246,7 +246,7 @@ func (c *Client) GetTransaction(txID string) (*GetTransactionResponse, error) {
 		return nil, err
 	}
 
-	req, err := newRequestBody(2, "", getTransactionInfoMethod, []json.RawMessage{param})
+	req, err := newRequestBody(2, "", getTransactionMethod, []json.RawMessage{param})
 	if err != nil {
 		return nil, err
 	}

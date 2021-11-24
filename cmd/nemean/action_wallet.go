@@ -72,6 +72,11 @@ func decryptRecord(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(rec)
+	resp, err := json.Marshal(rec)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
 	return nil
 }
