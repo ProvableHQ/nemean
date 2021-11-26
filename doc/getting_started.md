@@ -2,7 +2,7 @@
 
 This documentation showcases how to interact with the Nemean wallet in a development environment. Do not use these steps in production.
 
-## Running SnarkOS
+## Sending & Receiving
 To get started with sending and receiving value on Aleo. You will need to run a local [SnarkOS](https://github.com/AleoHQ/snarkOS) node daemon. This can be done by following the instructions found in the repo or by using the provided `docker-compose.yml` found in this project.
 
 First, create a new Aleo account that will be the owner of coinbase records.

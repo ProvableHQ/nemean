@@ -79,13 +79,13 @@ type TransactionMetadata struct {
 }
 
 type Transaction struct {
-	TxId           string        `json:"transaction_id"`
-	LedgerRoot     string        `json:"ledger_root"`
-	InnerCircuitID string        `json:"inner_circuit_id"`
-	Transitions    []Transitions `json:"transitions"`
+	TxId           string       `json:"transaction_id"`
+	LedgerRoot     string       `json:"ledger_root"`
+	InnerCircuitID string       `json:"inner_circuit_id"`
+	Transitions    []Transition `json:"transitions"`
 }
 
-type Transitions struct {
+type Transition struct {
 	CiphertextIDs []string `json:"ciphertext_ids"`
 	Ciphertexts   []string `json:"ciphertexts"`
 	Commitments   []string `json:"commitments"`

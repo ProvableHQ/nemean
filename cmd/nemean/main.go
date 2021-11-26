@@ -22,18 +22,25 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
-		newAccountCommand,
 		getBlockCommand,
 		getBlockHashCommand,
 		getBlockHashesCommand,
 		getBlockHeaderCommand,
 		getBlockHeightCommand,
-		latestBlockHeightCommand,
+		getBlocksCommand,
+		getBlocksTransactionsCommand,
+		getCiphertextCommand,
+		getLedgerProofCommand,
 		getTransactionCommand,
-		newTransactionCommand,
+		getTransitionCommand,
+		latestBlockCommand,
+		latestBlockHeaderCommand,
+		latestBlockHeightCommand,
+		latestBlockTransactionsCommand,
 		latestLedgerRootCommand,
 		sendTransactionCommand,
-		getLedgerProofCommand,
+		newAccountCommand,
+		newTransactionCommand,
 		decryptRecordCommand,
 	}
 	if err := app.Run(os.Args); err != nil {

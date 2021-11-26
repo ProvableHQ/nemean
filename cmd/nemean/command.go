@@ -73,7 +73,7 @@ var getBlockCommand = cli.Command{
 }
 
 var getBlockHashCommand = cli.Command{
-	Name:     "get_block_hash",
+	Name:     "getblockhash",
 	Category: "rpc",
 	Usage:    "Get a block hash.",
 	Description: `
@@ -90,7 +90,7 @@ var getBlockHashCommand = cli.Command{
 }
 
 var getBlockHashesCommand = cli.Command{
-	Name:     "get_block_hashes",
+	Name:     "getblockhashes",
 	Category: "rpc",
 	Usage:    "Get a block hashes.",
 	Description: `
@@ -112,7 +112,7 @@ var getBlockHashesCommand = cli.Command{
 }
 
 var getBlockHeaderCommand = cli.Command{
-	Name:     "get_block_header",
+	Name:     "getblockheader",
 	Category: "rpc",
 	Usage:    "Get a block header.",
 	Description: `
@@ -129,7 +129,7 @@ var getBlockHeaderCommand = cli.Command{
 }
 
 var getTransactionCommand = cli.Command{
-	Name:     "get_transaction",
+	Name:     "gettransaction",
 	Category: "rpc",
 	Usage:    "Get a transaction.",
 	Description: `
@@ -143,6 +143,23 @@ var getTransactionCommand = cli.Command{
 		},
 	},
 	Action: getTransaction,
+}
+
+var getTransitionCommand = cli.Command{
+	Name:     "gettransition",
+	Category: "rpc",
+	Usage:    "Get a transition.",
+	Description: `
+	Gets a transition from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "id",
+			Usage:    "transition_id",
+			Required: true,
+		},
+	},
+	Action: getTransition,
 }
 
 var getBlockHeightCommand = cli.Command{
@@ -162,6 +179,92 @@ var getBlockHeightCommand = cli.Command{
 	Action: getBlockHeight,
 }
 
+var getBlocksCommand = cli.Command{
+	Name:     "getblocks",
+	Category: "rpc",
+	Usage:    "Gets blocks from start to end heights.",
+	Description: `
+	Gets blocks from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "start",
+			Usage:    "start height",
+			Required: true,
+		},
+		cli.Int64Flag{
+			Name:     "end",
+			Usage:    "end height",
+			Required: true,
+		},
+	},
+	Action: getBlocks,
+}
+
+var getBlocksTransactionsCommand = cli.Command{
+	Name:     "getblocktransactions",
+	Category: "rpc",
+	Usage:    "Gets the transactions from the block of the given block height.",
+	Description: `
+	Gets the transactions from the block of the given block height from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "height",
+			Usage:    "block height",
+			Required: true,
+		},
+	},
+	Action: getBlockTransactions,
+}
+
+var getCiphertextCommand = cli.Command{
+	Name:     "getciphertext",
+	Category: "rpc",
+	Usage:    "Gets a ciphertext given the ciphertext ID.",
+	Description: `
+	Gets a ciphertext given the ciphertext ID from SnarkOS.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "id",
+			Usage:    "ciphertext id",
+			Required: true,
+		},
+	},
+	Action: getCiphertext,
+}
+
+var latestBlockCommand = cli.Command{
+	Name:     "latestblock",
+	Category: "rpc",
+	Usage:    "Get the latest block.",
+	Description: `
+	Gets the latest block from SnarkOS.
+	`,
+	Action: latestBlock,
+}
+
+var latestBlockHeaderCommand = cli.Command{
+	Name:     "latestblockheader",
+	Category: "rpc",
+	Usage:    "Get the latest block header.",
+	Description: `
+	Gets the latest block header from SnarkOS.
+	`,
+	Action: latestBlockHeader,
+}
+
+var latestBlockTransactionsCommand = cli.Command{
+	Name:     "latestblocktransactions",
+	Category: "rpc",
+	Usage:    "Get the latest block transactions.",
+	Description: `
+	Gets the latest block transactions from SnarkOS.
+	`,
+	Action: latestBlockTransactions,
+}
+
 var latestBlockHeightCommand = cli.Command{
 	Name:     "latestblockheight",
 	Category: "rpc",
@@ -173,7 +276,7 @@ var latestBlockHeightCommand = cli.Command{
 }
 
 var sendTransactionCommand = cli.Command{
-	Name:     "send_transaction",
+	Name:     "sendtransaction",
 	Category: "rpc",
 	Usage:    "Broadcasts a transaction.",
 	Description: `
@@ -190,7 +293,7 @@ var sendTransactionCommand = cli.Command{
 }
 
 var latestLedgerRootCommand = cli.Command{
-	Name:     "latest_ledger_root",
+	Name:     "latestledgerroot",
 	Category: "rpc",
 	Usage:    "Gets the latest ledger root.",
 	Description: `
@@ -200,7 +303,7 @@ var latestLedgerRootCommand = cli.Command{
 }
 
 var getLedgerProofCommand = cli.Command{
-	Name:     "ledger_proof",
+	Name:     "getledgerproof",
 	Category: "rpc",
 	Usage:    "Gets the ledger proof.",
 	Description: `

@@ -121,6 +121,32 @@ func getTransaction(ctx *cli.Context) error {
 	return nil
 }
 
+func getTransition(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetTransition(ctx.String("id"))
+	if err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
+
+	return nil
+}
+
 func getBlockHeight(ctx *cli.Context) error {
 	profile, err := getProfile(ctx)
 	if err != nil {
@@ -142,6 +168,69 @@ func getBlockHeight(ctx *cli.Context) error {
 	return nil
 }
 
+func getBlocks(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetBlocks(ctx.Int64("start"), ctx.Int64("end"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
+func getBlockTransactions(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetBlockTransactions(ctx.Int64("height"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
+func getCiphertext(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.GetCiphertext(ctx.String("id"))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
 func latestBlockHeight(ctx *cli.Context) error {
 	profile, err := getProfile(ctx)
 	if err != nil {
@@ -154,6 +243,69 @@ func latestBlockHeight(ctx *cli.Context) error {
 	}
 
 	resp, err := client.LatestBlockHeight()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
+func latestBlock(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.LatestBlock()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
+func latestBlockHeader(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.LatestBlockHeader()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%d\n", resp)
+
+	return nil
+}
+
+func latestBlockTransactions(ctx *cli.Context) error {
+	profile, err := getProfile(ctx)
+	if err != nil {
+		return err
+	}
+
+	client, err := getClient(profile.host, profile.port)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.LatestBlockTransactions()
 	if err != nil {
 		return err
 	}

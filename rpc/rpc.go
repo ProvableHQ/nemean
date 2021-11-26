@@ -174,71 +174,6 @@ func (c *Client) GetBlockHash(height int64) (string, error) {
 	return res, nil
 }
 
-// GetBlockTemplate returns the current mempool and consensus information known by this node.
-func (c *Client) GetBlockTemplate() (res *GetBlockTemplateResponse, err error) {
-	req, err := newRequestBody(2, "", getBlockTemplateMethod, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return nil, err
-	}
-
-	var result Result
-	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-// GetConnectionCount returns the number of connected peers this node has.
-func (c *Client) GetConnectionCount() (int, error) {
-	req, err := newRequestBody(2, "", getConnectionCountMethod, nil)
-	if err != nil {
-		return 0, err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return 0, err
-	}
-
-	var res int
-	if err := json.Unmarshal(resp.Result, &res); err != nil {
-		return 0, err
-	}
-
-	return res, nil
-}
-
-// GetRawTransaction returns hex encoded bytes of a transaction from its transaction id.
-func (c *Client) GetRawTransaction(txID string) (string, error) {
-	param, err := json.Marshal(txID)
-	if err != nil {
-		return "", err
-	}
-
-	req, err := newRequestBody(2, "", getRawTransactionMethod, []json.RawMessage{param})
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return "", err
-	}
-
-	var res string
-	if err := json.Unmarshal(resp.Result, &res); err != nil {
-		return "", err
-	}
-
-	return res, nil
-}
-
 // GetTransaction returns a transaction with metadata given the transaction ID.
 func (c *Client) GetTransaction(txID string) (*GetTransactionResponse, error) {
 	param, err := json.Marshal(txID)
@@ -257,6 +192,30 @@ func (c *Client) GetTransaction(txID string) (*GetTransactionResponse, error) {
 	}
 
 	var res GetTransactionResponse
+	if err := json.Unmarshal(resp.Result, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (c *Client) GetTransition(transitionID string) (*Transition, error) {
+	param, err := json.Marshal(transitionID)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := newRequestBody(2, "", getTransitionMethod, []json.RawMessage{param})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := newRequest(c, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var res Transition
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
@@ -285,51 +244,6 @@ func (c *Client) SendTransaction(txHex string) (string, error) {
 	var res string
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return "", err
-	}
-
-	return res, nil
-}
-
-// CreateAccount creates a new account private key and its corresponding account address.
-func (c *Client) CreateAccount() (*CreateAccountResponse, error) {
-	req, err := newRequestBody(2, "", createAccountMethod, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return nil, err
-	}
-
-	var res CreateAccountResponse
-	if err := json.Unmarshal(resp.Result, &res); err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-// ValidateRawTransaction validates and returns if the transaction is valid.
-func (c *Client) ValidateRawTransaction(txn string) (bool, error) {
-	param, err := json.Marshal(txn)
-	if err != nil {
-		return false, err
-	}
-
-	req, err := newRequestBody(2, "", validateRawTransactionMethod, []json.RawMessage{param})
-	if err != nil {
-		return false, err
-	}
-
-	resp, err := newRequest(c, req)
-	if err != nil {
-		return false, err
-	}
-
-	var res bool
-	if err := json.Unmarshal(resp.Result, &res); err != nil {
-		return false, err
 	}
 
 	return res, nil
