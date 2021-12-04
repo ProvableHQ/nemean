@@ -70,3 +70,13 @@ pub extern "C" fn account_address(ptr: *mut Account<Testnet2>) -> *mut libc::c_c
     let address = account.address().to_string();
     CString::new(address).unwrap().into_raw()
 }
+
+#[no_mangle]
+pub extern "C" fn account_free(ptr: *mut Account<Testnet2>) {
+    if ptr.is_null() {
+        return;
+    }
+    unsafe {
+        Box::from_raw(ptr);
+    }
+}

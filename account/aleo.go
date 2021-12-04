@@ -31,20 +31,27 @@ func fromPrivateKey(sk string) (*Account, error) {
 		return nil, handleCError()
 	}
 
+	defer C.account_free((*C.account_t)(unsafe.Pointer(res)))
+
 	privateKeyC := C.account_private_key((*C.account_t)(unsafe.Pointer(res)))
-	// todo free
+	defer C.free(unsafe.Pointer(privateKeyC))
+
 	privateKey, err := ParsePrivateKey(C.GoString(privateKeyC))
 	if err != nil {
 		return nil, err
 	}
 
 	viewKeyC := C.account_view_key((*C.account_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(viewKeyC))
+
 	viewKey, err := ParseViewKey(C.GoString(viewKeyC))
 	if err != nil {
 		return nil, err
 	}
 
 	addressC := C.account_address((*C.account_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(addressC))
+
 	address, err := ParseAddress(C.GoString(addressC))
 	if err != nil {
 		return nil, err
@@ -63,20 +70,27 @@ func fromSeed(seed [32]byte, params *network.Params) (*Account, error) {
 		return nil, handleCError()
 	}
 
+	defer C.account_free((*C.account_t)(unsafe.Pointer(res)))
+
 	privateKeyC := C.account_private_key((*C.account_t)(unsafe.Pointer(res)))
-	// todo free
+	defer C.free(unsafe.Pointer(privateKeyC))
+
 	privateKey, err := ParsePrivateKey(C.GoString(privateKeyC))
 	if err != nil {
 		return nil, err
 	}
 
 	viewKeyC := C.account_view_key((*C.account_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(viewKeyC))
+
 	viewKey, err := ParseViewKey(C.GoString(viewKeyC))
 	if err != nil {
 		return nil, err
 	}
 
 	addressC := C.account_address((*C.account_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(addressC))
+
 	address, err := ParseAddress(C.GoString(addressC))
 	if err != nil {
 		return nil, err

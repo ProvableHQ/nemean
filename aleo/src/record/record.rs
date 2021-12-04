@@ -271,3 +271,13 @@ pub extern "C" fn record_program_id(ptr: *mut Record<Testnet2>) -> *mut libc::c_
     let program_id = record.program_id().to_string();
     CString::new(program_id).unwrap().into_raw()
 }
+
+#[no_mangle]
+pub extern "C" fn record_free(ptr: *mut Record<Testnet2>) {
+    if ptr.is_null() {
+        return;
+    }
+    unsafe {
+        Box::from_raw(ptr);
+    }
+}

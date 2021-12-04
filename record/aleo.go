@@ -44,17 +44,16 @@ func newInputRecord(address *account.Address, value int64, payload [128]byte, ra
 	}, nil
 }
 
-//func fromRecord(owner *account.Address, value int64, payload [128]byte, )
-
 func encryptRecord(record *Record, randomness []byte) (string, error) {
-	// fromrecord
 	res := C.from_record(C.CString(record.owner.String()), C.uint64_t(record.value), (*C.uint8_t)(unsafe.Pointer(&record.payload[0])), C.CString(record.serialNumberNonce), C.CString(record.commitmentRandomness))
 	if res == nil {
 		return "", handleCError()
 	}
 
+	defer C.record_free((*C.account_t)(unsafe.Pointer(res)))
+
 	cipher := C.encrypt_record((*C.record_t)(unsafe.Pointer(res)), (*C.uint8_t)(unsafe.Pointer(&randomness[0])), C.size_t(len(randomness)))
-	fmt.Println(C.GoString(cipher))
+	defer C.free(unsafe.Pointer(cipher))
 
 	return C.GoString(cipher), nil
 }
@@ -64,7 +63,10 @@ func decryptRecord(ciphertext string, viewKey *account.ViewKey) (*Record, error)
 	if res == nil {
 		return nil, handleCError()
 	}
+	defer C.record_free((*C.account_t)(unsafe.Pointer(res)))
+
 	owner := C.record_owner((*C.record_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(owner))
 
 	addr, err := account.ParseAddress(C.GoString(owner))
 	if err != nil {
@@ -77,6 +79,9 @@ func decryptRecord(ciphertext string, viewKey *account.ViewKey) (*Record, error)
 	programID := C.record_program_id((*C.record_t)(unsafe.Pointer(res)))
 	serialNumberNonce := C.record_serial_number_nonce((*C.record_t)(unsafe.Pointer(res)))
 	commitmentRandomness := C.record_commitment_randomness((*C.record_t)(unsafe.Pointer(res)))
+	defer C.free(unsafe.Pointer(programID))
+	defer C.free(unsafe.Pointer(serialNumberNonce))
+	defer C.free(unsafe.Pointer(commitmentRandomness))
 
 	return &Record{
 		owner:                addr,

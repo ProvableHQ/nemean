@@ -19,6 +19,7 @@ extern account_t * from_seed(const uint8_t *n, size_t len);
 char * account_private_key(const account_t *);
 char * account_view_key(const account_t *);
 char * account_address(const account_t *);
+void * account_free(account_t *ptr);
 
 /* record */
 typedef struct record record_t;
@@ -37,6 +38,7 @@ char *record_commitment(const record_t *);
 char *record_program_id(const record_t *);
 char *encrypt_record(const record_t *, const uint8_t *randomness, size_t randomness_len);
 char *decrypt_record(const char *ciphertext, const char *view_key);
+void * record_free(account_t *ptr);
 
 /* transaction */
 char *new_coinbase_transaction(const char *addr,
