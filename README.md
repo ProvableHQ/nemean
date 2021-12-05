@@ -38,6 +38,5 @@ Documentation can be found in `/doc`.
 * [Overview of receiving and sending.](doc/getting_started.md)
 * [Guide for wallet engineers.](doc/integration.md)
 * [Setting up Nemean on an airgapped machine.](doc/airgapped.md)
-* [Taking advantage of the Aleo network.](doc/uses.md)
 
 This software is in active development. Do not use for production.
