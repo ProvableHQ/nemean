@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/pinestreetlabs/aleo-wallet-sdk/account"
 	"github.com/pinestreetlabs/aleo-wallet-sdk/network"
@@ -10,10 +12,28 @@ import (
 	"github.com/urfave/cli"
 )
 
-func newAccount(ctx *cli.Context) error {
-	seed, err := account.NewSeed()
-	if err != nil {
-		return err
+var errInvalidSeed = errors.New("invalid seed")
+
+func newAccount(ctx *cli.Context) (err error) {
+	var seed [32]byte
+	if ctx.NumFlags() == 1 {
+		in := ctx.String("from")
+
+		buf, err := base64.StdEncoding.DecodeString(in)
+		if err != nil {
+			return fmt.Errorf("%w : %v", errInvalidSeed, err)
+		}
+
+		if len(buf) != 32 {
+			return fmt.Errorf("%w : got len %d", errInvalidSeed, len(buf))
+		}
+
+		copy(seed[:], buf)
+	} else {
+		seed, err = account.NewSeed()
+		if err != nil {
+			return err
+		}
 	}
 
 	acc, err := account.FromSeed(seed, network.Testnet2())

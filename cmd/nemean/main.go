@@ -15,7 +15,7 @@ func main() {
 	app.Usage = "An unfairly private wallet for Aleo."
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "rpchost",
+			Name:  "rpc",
 			Value: "",
 			Usage: "the host:port of SnarkOS",
 		},
@@ -54,9 +54,9 @@ type profile struct {
 }
 
 func getProfile(ctx *cli.Context) (*profile, error) {
-	snarkos := strings.Split(ctx.GlobalString("rpchost"), ":")
+	snarkos := strings.Split(ctx.GlobalString("rpc"), ":")
 	if len(snarkos) != 2 {
-		return nil, errors.New("invalid rpchost")
+		return nil, errors.New("invalid rpc")
 	}
 	return &profile{
 		host: snarkos[0],

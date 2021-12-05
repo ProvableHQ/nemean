@@ -9,6 +9,13 @@ var newAccountCommand = cli.Command{
 	Description: `
 	The create command is used to create a new Aleo account.
 	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "from",
+			Usage:    "base64 encoded 32 byte seed",
+			Required: false,
+		},
+	},
 	Action: newAccount,
 }
 
