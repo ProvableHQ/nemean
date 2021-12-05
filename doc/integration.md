@@ -1,6 +1,6 @@
 # Integrating Nemean
 
-Nemean is both a CLI and library. The main user of the library is for a wallet engineer that wants to integrate Aleo into their stack using Go. Alternatively, one might use Nemean as a reference for understanding how the wallet concepts fit together. 
+Nemean is both a CLI and library.The main use of the library is to make it easy for a wallet engineer that wants to integrate Aleo into their tech stack using Go. Alternatively, one might use Nemean as a reference for understanding how the wallet concepts fit together. 
 
 ## Architecture
 Nemean is written in Go, but uses Rust for the underlying cryptographic library functionality. To do so, the snarkvm Rust crates are exposed using Rust's Foreign Function Interface (FFI). The Rust code is exposed with a C interface found in `aleo/`. See `aleo/aleo.h` for the interface. The end result is a `libaleo.so` shared library that is used by Go (Nemean). 

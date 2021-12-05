@@ -73,8 +73,8 @@ func newRequestBody(rpcVersion int, id string, method string, params []json.RawM
 	req := &Request{
 		Method:     method,
 		Params:     params,
-		Id:         id,
-		RpcVersion: "2.0",
+		ID:         id,
+		RPCVersion: "2.0",
 	}
 	return json.Marshal(req)
 }
@@ -199,6 +199,7 @@ func (c *Client) GetTransaction(txID string) (*GetTransactionResponse, error) {
 	return &res, nil
 }
 
+// GetTransition returns a transition given an id.
 func (c *Client) GetTransition(transitionID string) (*Transition, error) {
 	param, err := json.Marshal(transitionID)
 	if err != nil {
@@ -249,6 +250,7 @@ func (c *Client) SendTransaction(txHex string) (string, error) {
 	return res, nil
 }
 
+// LatestLedgerRoot returns the latest ledger root.
 func (c *Client) LatestLedgerRoot() (string, error) {
 	req, err := newRequestBody(2, "", latestLedgerRootMethod, nil)
 	if err != nil {
@@ -268,6 +270,7 @@ func (c *Client) LatestLedgerRoot() (string, error) {
 	return res, nil
 }
 
+// GetLedgerProof returns the ledger proof of a given record commitment.
 func (c *Client) GetLedgerProof(recordCommitment string) (string, error) {
 	param, err := json.Marshal(recordCommitment)
 	if err != nil {
@@ -292,6 +295,7 @@ func (c *Client) GetLedgerProof(recordCommitment string) (string, error) {
 	return res, nil
 }
 
+// GetCiphertext returns the ciphertext using a given id.
 func (c *Client) GetCiphertext(id string) (string, error) {
 	param, err := json.Marshal(id)
 	if err != nil {
@@ -316,6 +320,7 @@ func (c *Client) GetCiphertext(id string) (string, error) {
 	return res, nil
 }
 
+// GetBlockHashes returns blockhashes for a given range of block heights.
 func (c *Client) GetBlockHashes(start, end int64) ([]string, error) {
 	if start > end {
 		return nil, errors.New("start > end")
@@ -349,6 +354,7 @@ func (c *Client) GetBlockHashes(start, end int64) ([]string, error) {
 	return res, nil
 }
 
+// GetBlockHeader returns the blockheader of a given block height.
 func (c *Client) GetBlockHeader(height int64) (*BlockHeader, error) {
 	param, err := json.Marshal(height)
 	if err != nil {
@@ -373,6 +379,7 @@ func (c *Client) GetBlockHeader(height int64) (*BlockHeader, error) {
 	return &res, nil
 }
 
+// GetBlocks returns a range of blocks with the given block heights.
 func (c *Client) GetBlocks(start, end int64) ([]Block, error) {
 	if start > end {
 		return nil, errors.New("start > end")
@@ -406,6 +413,7 @@ func (c *Client) GetBlocks(start, end int64) ([]Block, error) {
 	return res, nil
 }
 
+// GetBlockTransactions returns transactions in a block at a given height.
 func (c *Client) GetBlockTransactions(height int64) ([]*Transaction, error) {
 	param, err := json.Marshal(height)
 	if err != nil {
@@ -430,6 +438,7 @@ func (c *Client) GetBlockTransactions(height int64) ([]*Transaction, error) {
 	return res, nil
 }
 
+// LatestBlock returns the latest block.
 func (c *Client) LatestBlock() (*Block, error) {
 	req, err := newRequestBody(2, "", latestBlockMethod, nil)
 	if err != nil {
@@ -449,6 +458,7 @@ func (c *Client) LatestBlock() (*Block, error) {
 	return &res, nil
 }
 
+// LatestBlockHash returns the latest blockhash.
 func (c *Client) LatestBlockHash() (string, error) {
 	req, err := newRequestBody(2, "", latestBlockHashMethod, nil)
 	if err != nil {
@@ -468,6 +478,7 @@ func (c *Client) LatestBlockHash() (string, error) {
 	return res, nil
 }
 
+// LatestBlockHeader returns the latest blcok header.
 func (c *Client) LatestBlockHeader() (*BlockHeader, error) {
 	req, err := newRequestBody(2, "", latestBlockHeaderMethod, nil)
 	if err != nil {
@@ -487,6 +498,7 @@ func (c *Client) LatestBlockHeader() (*BlockHeader, error) {
 	return &res, nil
 }
 
+// LatestBlockHeight returns the latest blockheight.
 func (c *Client) LatestBlockHeight() (int64, error) {
 	req, err := newRequestBody(2, "", latestBlockHeightMethod, nil)
 	if err != nil {
@@ -506,6 +518,7 @@ func (c *Client) LatestBlockHeight() (int64, error) {
 	return res, nil
 }
 
+// LatestBlockTransactions returns a list of transactions for the latest block.
 func (c *Client) LatestBlockTransactions() ([]*Transaction, error) {
 	req, err := newRequestBody(2, "", latestBlockTransactionsMethod, nil)
 	if err != nil {
@@ -525,6 +538,7 @@ func (c *Client) LatestBlockTransactions() ([]*Transaction, error) {
 	return res, nil
 }
 
+// GetConnectedPeers returns a list of connected peers.
 func (c *Client) GetConnectedPeers() ([]string, error) {
 	req, err := newRequestBody(2, "", getConnectedPeersMethod, nil)
 	if err != nil {

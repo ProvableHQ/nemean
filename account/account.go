@@ -12,22 +12,25 @@ type Account struct {
 	address    *Address
 }
 
-type AccountJSON struct {
+// JSON is a helper struct for serialization.
+type JSON struct {
 	PrivateKey string `json:"privatekey"`
 	ViewKey    string `json:"viewkey"`
 	Address    string `json:"address"`
 }
 
+// MarshalJSON implements the marshaller interface.
 func (a *Account) MarshalJSON() ([]byte, error) {
-	return json.Marshal(AccountJSON{
+	return json.Marshal(JSON{
 		PrivateKey: a.privateKey.String(),
 		ViewKey:    a.viewKey.String(),
 		Address:    a.address.String(),
 	})
 }
 
+// UnmarshalJSON implements the marshaller interface.
 func (a *Account) UnmarshalJSON(b []byte) error {
-	temp := &AccountJSON{}
+	temp := &JSON{}
 
 	if err := json.Unmarshal(b, &temp); err != nil {
 		return err

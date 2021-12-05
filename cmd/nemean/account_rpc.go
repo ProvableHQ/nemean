@@ -90,7 +90,7 @@ func getBlockHeader(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%s\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }
@@ -184,7 +184,7 @@ func getBlocks(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }
@@ -205,7 +205,7 @@ func getBlockTransactions(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }
@@ -226,7 +226,7 @@ func getCiphertext(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%s\n", resp)
 
 	return nil
 }
@@ -268,7 +268,7 @@ func latestBlock(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }
@@ -289,7 +289,7 @@ func latestBlockHeader(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }
@@ -310,7 +310,7 @@ func latestBlockTransactions(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%d\n", resp)
+	fmt.Printf("%v\n", resp)
 
 	return nil
 }

@@ -5,29 +5,34 @@ import (
 	"math/big"
 )
 
+// Request is the RPC request object.
 type Request struct {
 	Method     string            `json:"method"`
 	Params     []json.RawMessage `json:"params"`
-	Id         string            `json:"id"`
-	RpcVersion string            `json:"jsonrpc"`
+	ID         string            `json:"id"`
+	RPCVersion string            `json:"jsonrpc"`
 }
 
+// Error is the RPC error response.
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    string `json:"data"`
 }
 
+// Result is the RPC result response.
 type Result struct {
 	Result json.RawMessage `json:"result"`
 	Error  *Error          `json:"error,omitempty"`
 	ID     string          `json:"id"`
 }
 
+// Transactions is a list of Transactions.
 type Transactions struct {
 	Transactions []Transaction `json:"transactions"`
 }
 
+// Block contains the block response object.
 type Block struct {
 	BlockHash         string       `json:"block_hash"`
 	PreviousBlockHash string       `json:"previous_block_hash"`
@@ -35,6 +40,7 @@ type Block struct {
 	BlockHeader       BlockHeader  `json:"header"`
 }
 
+// BlockHeader contains the blockheader response object.
 type BlockHeader struct {
 	PrevLedgerRoot   string              `json:"previous_ledger_root"`
 	TransactionsRoot string              `json:"transactions_root"`
@@ -42,6 +48,7 @@ type BlockHeader struct {
 	Metadata         BlockHeaderMetadata `json:"metadata"`
 }
 
+// BlockHeaderMetadata contains the metadata in a blockheader.
 type BlockHeaderMetadata struct {
 	DifficultyTarget big.Int `json:"difficulty_target"`
 	Height           int64   `json:"height"`
@@ -49,28 +56,13 @@ type BlockHeaderMetadata struct {
 	Timestamp        int64   `json:"timestamp"`
 }
 
-type GetBlockTemplateResponse struct {
-	PreviousBlockHash string   `json:"previous_block_hash"`
-	BlockHeight       int64    `json:"block_height"`
-	Time              int64    `json:"time"`
-	DifficultyTarget  int64    `json:"difficulty_target"`
-	Transactions      []string `json:"transactions"` //todo
-	CoinbaseValue     int64    `json:"coinbase_value"`
-}
-
-type GetConnectionCountResponse struct {
-	Result int64 `json:"result"`
-}
-
-type GetRawTransactionResult struct {
-	Result string `json:"result"`
-}
-
+// GetTransactionResponse contains the transaction response.
 type GetTransactionResponse struct {
 	Transaction Transaction         `json:"transaction"`
 	Metadata    TransactionMetadata `json:"metadata"`
 }
 
+// TransactionMetadata contains the metadata for a transaction object.
 type TransactionMetadata struct {
 	BlockHash        string `json:"block_hash"`
 	BlockHeight      int64  `json:"block_height"`
@@ -78,13 +70,15 @@ type TransactionMetadata struct {
 	TransactionIndex int64  `json:"transaction_index"`
 }
 
+// Transaction is the transaction object.
 type Transaction struct {
-	TxId           string       `json:"transaction_id"`
+	TxID           string       `json:"transaction_id"`
 	LedgerRoot     string       `json:"ledger_root"`
 	InnerCircuitID string       `json:"inner_circuit_id"`
 	Transitions    []Transition `json:"transitions"`
 }
 
+// Transition is a transition object.
 type Transition struct {
 	CiphertextIDs []string `json:"ciphertext_ids"`
 	Ciphertexts   []string `json:"ciphertexts"`
@@ -93,28 +87,4 @@ type Transition struct {
 	SerialNumbers []string `json:"serial_numbers"`
 	ID            string   `json:"transition_id"`
 	ValueBalance  int64    `json:"value_balance"`
-}
-
-type SendTransactionResponse struct {
-	Result string `json:"result"`
-}
-
-type CreateAccountResponse struct {
-	PrivateKey string `json:"private_key"`
-	ViewKey    string `json:"view_key"`
-	Address    string `json:"address"`
-}
-
-type CreateRawTransactionResponse struct {
-	EncodedTransaction string   `json:"encoded_transaction"`
-	EncodedRecords     []string `json:"encoded_records"`
-}
-
-type CreateTransactionResponse struct {
-	EncodedTransaction string   `json:"encoded_transaction"`
-	EncodedRecords     []string `json:"encoded_records"`
-}
-
-type CreateTransactionKernelResponse struct {
-	TransactionKernel string `json:"transaction_kernel"`
 }
