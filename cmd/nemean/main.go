@@ -40,6 +40,7 @@ func main() {
 		latestLedgerRootCommand,
 		sendTransactionCommand,
 		newAccountCommand,
+		fromAccountCommand,
 		newTransactionCommand,
 		decryptRecordCommand,
 	}

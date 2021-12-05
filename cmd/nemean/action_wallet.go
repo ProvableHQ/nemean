@@ -50,6 +50,23 @@ func newAccount(ctx *cli.Context) (err error) {
 	return nil
 }
 
+func fromAccount(ctx *cli.Context) error {
+	key := ctx.String("from")
+
+	acc, err := account.FromPrivateKey(key, network.Testnet2())
+	if err != nil {
+		return err
+	}
+
+	resp, err := json.Marshal(acc)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+	return nil
+}
+
 func newTransaction(ctx *cli.Context) error {
 	inputRec := ctx.String("record")
 

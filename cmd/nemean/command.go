@@ -19,6 +19,23 @@ var newAccountCommand = cli.Command{
 	Action: newAccount,
 }
 
+var fromAccountCommand = cli.Command{
+	Name:     "account",
+	Category: "wallet",
+	Usage:    "View account address using a private key.",
+	Description: `
+	The account command is used to view the address of an account using a private key.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "from",
+			Usage:    "base32m encoded private key",
+			Required: true,
+		},
+	},
+	Action: fromAccount,
+}
+
 var newTransactionCommand = cli.Command{
 	Name:     "send",
 	Category: "wallet",

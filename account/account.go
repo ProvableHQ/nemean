@@ -13,9 +13,9 @@ type Account struct {
 }
 
 type AccountJSON struct {
-	PrivateKey string
-	ViewKey    string
-	Address    string
+	PrivateKey string `json:"privatekey"`
+	ViewKey    string `json:"viewkey"`
+	Address    string `json:"address"`
 }
 
 func (a *Account) MarshalJSON() ([]byte, error) {

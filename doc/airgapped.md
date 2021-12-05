@@ -19,7 +19,7 @@ $ SEED=$(openssl rand -base64 32) && nemean create --from=$SEED
 
 For convenience, you might want to transmit the payload using QR. For example, the following will generate a QR code for an Aleo address.
 ```console
-$ nemean create | jq .Address | qrencode  -t utf8
+$ nemean create | jq .address | qrencode  -t utf8
 █████████████████████████████████████████
 █████████████████████████████████████████
 ████ ▄▄▄▄▄ █▀ █▀▀▀▀▀▄▄▄▄ ▀▄▄▄█ ▄▄▄▄▄ ████
