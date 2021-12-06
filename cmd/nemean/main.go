@@ -42,6 +42,8 @@ func main() {
 		newAccountCommand,
 		fromAccountCommand,
 		newTransactionCommand,
+		newRecordCommand,
+		encryptRecordCommand,
 		decryptRecordCommand,
 	}
 	if err := app.Run(os.Args); err != nil {

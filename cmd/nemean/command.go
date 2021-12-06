@@ -364,3 +364,47 @@ var decryptRecordCommand = cli.Command{
 	},
 	Action: decryptRecord,
 }
+
+var encryptRecordCommand = cli.Command{
+	Name:     "encrypt_record",
+	Category: "wallet",
+	Usage:    "Encrypts a record.",
+	Description: `
+	Encrypts a record. Returns the ciphertext of the record.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "record",
+			Usage:    "JSON record",
+			Required: true,
+		},
+	},
+	Action: encryptRecord,
+}
+
+var newRecordCommand = cli.Command{
+	Name:     "new_record",
+	Category: "wallet",
+	Usage:    "Creates a new record.",
+	Description: `
+	Creates a new record.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "owner",
+			Usage:    "The owner of the record.",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:     "payload",
+			Usage:    "The payload of the record.",
+			Required: true,
+		},
+		cli.Int64Flag{
+			Name:     "value",
+			Usage:    "The value of the record.",
+			Required: true,
+		},
+	},
+	Action: newRecord,
+}

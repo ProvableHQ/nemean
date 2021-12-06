@@ -5,17 +5,20 @@
 
 use crate::c_error;
 use rand::{rngs::StdRng, SeedableRng};
+use rand::{thread_rng, Rng};
+use rand_chacha::ChaChaRng;
+use snarkvm_algorithms::EncryptionScheme;
 use snarkvm_dpc::{
-    network::testnet2::Testnet2, Address, Network, Payload, Record, RecordCiphertext, ViewKey,
+    network::testnet2::Testnet2, Address, AleoAmount, Ciphertext, Network, Payload, Record, ViewKey,
 };
-use snarkvm_utilities::{FromBytes, ToBytes, UniformRand};
+use snarkvm_utilities::{FromBytes, ToBytes};
 use std::ffi::{CStr, CString};
 use std::{slice, str::FromStr};
 
 #[no_mangle]
 pub extern "C" fn new_input_record(
     addr: *const libc::c_char,
-    val: u64,
+    val: i64,
     payload: *const u8,
     randomness: *const u8,
     randomness_len: libc::size_t,
@@ -58,13 +61,12 @@ pub extern "C" fn new_input_record(
         }
     };
 
-    let record = match Record::new_input(
+    let record = match Record::new(
         address,
-        val as u64,
+        AleoAmount::from_aleo(val),
         record_payload,
         *Testnet2::noop_program_id(),
-        UniformRand::rand(&mut rng),
-        UniformRand::rand(&mut rng),
+        &mut rng,
     ) {
         Ok(record) => record,
         Err(error) => {
@@ -79,10 +81,8 @@ pub extern "C" fn new_input_record(
 #[no_mangle]
 pub extern "C" fn from_record(
     addr: *const libc::c_char,
-    val: u64,
+    val: i64,
     payload: *const u8,
-    serial_number_nonce: *const libc::c_char,
-    commitment_randomness: *const libc::c_char,
 ) -> *mut Record<Testnet2> {
     let c_addr = unsafe {
         assert!(!addr.is_null());
@@ -91,7 +91,6 @@ pub extern "C" fn from_record(
     };
 
     let address = Address::<Testnet2>::from_str(c_addr.to_str().unwrap()).unwrap();
-    // convert payload
 
     let c_payload = unsafe {
         assert!(!payload.is_null());
@@ -99,29 +98,19 @@ pub extern "C" fn from_record(
         slice::from_raw_parts(payload, Testnet2::RECORD_PAYLOAD_SIZE_IN_BYTES)
     };
 
-    // convert serial_number_nonce
-    let c_serial_number_nonce = unsafe {
-        assert!(!serial_number_nonce.is_null());
+    let seed: u64 = thread_rng().gen();
+    let rng = &mut ChaChaRng::seed_from_u64(seed);
 
-        CStr::from_ptr(serial_number_nonce)
-    };
-
-    let c_commitment_randomness = unsafe {
-        assert!(!commitment_randomness.is_null());
-        CStr::from_ptr(commitment_randomness)
-    };
+    let (_randomness, randomizer, record_view_key) =
+        Testnet2::account_encryption_scheme().generate_asymmetric_key(&*address, rng);
 
     let record = match Record::from(
         address,
-        val as u64,
+        AleoAmount(val),
         Payload::from_bytes_le(&c_payload).unwrap(),
         *Testnet2::noop_program_id(),
-        <Testnet2 as Network>::SerialNumber::from_str(c_serial_number_nonce.to_str().unwrap())
-            .unwrap(),
-        <Testnet2 as Network>::CommitmentRandomness::from_str(
-            c_commitment_randomness.to_str().unwrap(),
-        )
-        .unwrap(),
+        randomizer.into(),
+        record_view_key.into(),
     ) {
         Ok(record) => record,
         Err(error) => {
@@ -134,24 +123,14 @@ pub extern "C" fn from_record(
 }
 
 #[no_mangle]
-pub extern "C" fn encrypt_record(
-    ptr: *mut Record<Testnet2>,
-    randomness: *const u8,
-    randomness_len: libc::size_t,
-) -> *mut libc::c_char {
+pub extern "C" fn encrypt_record(ptr: *mut Record<Testnet2>) -> *mut libc::c_char {
     let record = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
-    let c_rng = unsafe {
-        assert!(!randomness.is_null());
-        slice::from_raw_parts(randomness, randomness_len as usize)
-    };
+    let record_ciphertext = &record.ciphertext();
 
-    let mut rng: StdRng = SeedableRng::from_seed(c_rng.try_into().unwrap());
-
-    let (record_ciphertext, _) = RecordCiphertext::encrypt(&record, &mut rng).unwrap();
     CString::new(record_ciphertext.to_string())
         .unwrap()
         .into_raw()
@@ -176,8 +155,18 @@ pub extern "C" fn decrypt_record(
 
     let view_key = ViewKey::<Testnet2>::from_str(c_view_key.to_str().unwrap()).unwrap();
 
-    let ciphertext = RecordCiphertext::from_str(c_ciphertext.to_str().unwrap()).unwrap();
-    let record = match ciphertext.decrypt(&view_key) {
+    let encrypted_record =
+        match Ciphertext::<Testnet2>::read_le(c_ciphertext.to_str().unwrap().as_bytes()) {
+            Ok(ciphertext) => ciphertext,
+            _ => {
+                c_error::update_last_error(snarkvm_utilities::error(
+                    "cannot convert ciphertext into Ciphertext object",
+                ));
+                return std::ptr::null_mut();
+            }
+        };
+
+    let record = match Record::from_account_view_key(&view_key, &encrypted_record.into()) {
         Ok(rec) => rec,
         _ => {
             c_error::update_last_error(snarkvm_utilities::error("cannot decrypt ciphertext"));
@@ -199,12 +188,12 @@ pub extern "C" fn record_owner(ptr: *mut Record<Testnet2>) -> *mut libc::c_char 
 }
 
 #[no_mangle]
-pub extern "C" fn record_value(ptr: *mut Record<Testnet2>) -> u64 {
+pub extern "C" fn record_value(ptr: *mut Record<Testnet2>) -> i64 {
     let record = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
-    let value = record.value() as u64;
+    let value = record.value().as_i64();
     value
 }
 
@@ -229,24 +218,13 @@ pub extern "C" fn record_payload(ptr: *mut Record<Testnet2>) -> Buffer {
 }
 
 #[no_mangle]
-pub extern "C" fn record_serial_number_nonce(ptr: *mut Record<Testnet2>) -> *mut libc::c_char {
-    let record = unsafe {
-        assert!(!ptr.is_null());
-        &mut *ptr
-    };
-
-    let serial_number_nonce = record.serial_number_nonce().to_string();
-    CString::new(serial_number_nonce).unwrap().into_raw()
-}
-
-#[no_mangle]
 pub extern "C" fn record_commitment_randomness(ptr: *mut Record<Testnet2>) -> *mut libc::c_char {
     let record = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
-    let commitment_randomness = record.commitment_randomness().to_string();
+    let commitment_randomness = record.randomizer().to_string();
     CString::new(commitment_randomness).unwrap().into_raw()
 }
 

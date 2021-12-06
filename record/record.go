@@ -12,7 +12,6 @@ type Record struct {
 	value                int64
 	payload              []byte
 	programID            string
-	serialNumberNonce    string
 	commitmentRandomness string
 }
 
@@ -22,7 +21,6 @@ type JSON struct {
 	Value                int64  `json:"value"`
 	Payload              []byte `json:"payload"`
 	ProgramID            string `json:"program_id"`
-	SerialNumberNonce    string `json:"serial_number_nonce"`
 	CommitmentRandomness string `json:"commitment_randomness"`
 }
 
@@ -33,7 +31,6 @@ func (r *Record) MarshalJSON() ([]byte, error) {
 		Value:                r.value,
 		Payload:              r.payload,
 		ProgramID:            r.programID,
-		SerialNumberNonce:    r.serialNumberNonce,
 		CommitmentRandomness: r.commitmentRandomness,
 	})
 }
@@ -55,7 +52,6 @@ func (r *Record) UnmarshalJSON(b []byte) error {
 	r.value = temp.Value
 	r.payload = temp.Payload
 	r.programID = temp.ProgramID
-	r.serialNumberNonce = temp.SerialNumberNonce
 	r.commitmentRandomness = temp.CommitmentRandomness
 
 	return nil
@@ -68,7 +64,6 @@ func NewRecord(owner *account.Address, value int64, payload []byte, programID st
 		value:                value,
 		payload:              payload,
 		programID:            programID,
-		serialNumberNonce:    serialNumberNonce,
 		commitmentRandomness: commitmentRandomness,
 	}
 }
@@ -93,11 +88,6 @@ func (r Record) ProgramID() string {
 	return r.programID
 }
 
-// SerialNumberNonce returns the Record's serial number nonce.
-func (r Record) SerialNumberNonce() string {
-	return r.serialNumberNonce
-}
-
 // CommitmentRandomness returns the Record's commitment randomness.
 func (r Record) CommitmentRandomness() string {
 	return r.commitmentRandomness
@@ -105,8 +95,8 @@ func (r Record) CommitmentRandomness() string {
 
 // Owner returns the Record's owner.
 func (r Record) String() string {
-	return fmt.Sprintf("owner: %v\nvalue: %v\n,payload: %v\n, programID: %s\nserialNumberNonce: %s\ncommitmentRandomness: %s\n",
-		r.owner, r.value, r.payload, r.programID, r.serialNumberNonce, r.commitmentRandomness)
+	return fmt.Sprintf("owner: %v\nvalue: %v\n,payload: %v\n, programID: %s\ncommitmentRandomness: %s\n",
+		r.owner, r.value, r.payload, r.programID, r.commitmentRandomness)
 }
 
 // NewInputRecord creates a new record.
@@ -115,8 +105,8 @@ func NewInputRecord(address *account.Address, value int64, payload [128]byte, ra
 }
 
 // EncryptRecord encrypts a record.
-func EncryptRecord(record *Record, encrypt []byte) (string, error) {
-	return encryptRecord(record, encrypt)
+func EncryptRecord(record *Record) (string, error) {
+	return encryptRecord(record)
 }
 
 // DecryptRecord decrypts a record.

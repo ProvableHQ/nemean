@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -110,6 +111,56 @@ func decryptRecord(ctx *cli.Context) error {
 	}
 
 	resp, err := json.Marshal(rec)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+	return nil
+}
+
+func newRecord(ctx *cli.Context) error {
+	owner, err := account.ParseAddress(ctx.String("owner"))
+	if err != nil {
+		return err
+	}
+
+	var payload [128]byte
+	buf, err := base64.StdEncoding.DecodeString(ctx.String("payload"))
+	if err != nil {
+		return err
+	}
+
+	var randomness [32]byte
+	if _, err := rand.Read(randomness[:]); err != nil {
+		return err
+	}
+
+	copy(payload[:], buf)
+
+	rec, err := record.NewInputRecord(owner, ctx.Int64("value"), payload, randomness[:])
+	if err != nil {
+		return err
+	}
+
+	resp, err := json.Marshal(rec)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+	return nil
+}
+
+func encryptRecord(ctx *cli.Context) error {
+	inputRec := ctx.String("record")
+
+	var rec record.Record
+	if err := json.Unmarshal([]byte(inputRec), &rec); err != nil {
+		return err
+	}
+
+	resp, err := record.EncryptRecord(&rec)
 	if err != nil {
 		return err
 	}

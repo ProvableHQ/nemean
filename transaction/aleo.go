@@ -16,13 +16,13 @@ import (
 )
 
 func newCoinbaseTransaction(address *account.Address, value int64, random []byte) string {
-	res := C.new_coinbase_transaction(C.CString(address.String()), C.uint64_t(value), (*C.uint8_t)(unsafe.Pointer(&random[0])), C.size_t(len(random)))
+	res := C.new_coinbase_transaction(C.CString(address.String()), C.int64_t(value), (*C.uint8_t)(unsafe.Pointer(&random[0])), C.size_t(len(random)))
 	defer C.free(unsafe.Pointer(res))
 	return C.GoString(res)
 }
 
 func newTransferTransaction(privateKey *account.PrivateKey, to *account.Address, in *record.Record, ledgerProofs []string, amount, fee int64) (string, error) {
-	inRecord := C.from_record(C.CString(in.Owner().String()), C.uint64_t(in.Value()), (*C.uint8_t)(unsafe.Pointer(&in.Payload()[0])), C.CString(in.SerialNumberNonce()), C.CString(in.CommitmentRandomness()))
+	inRecord := C.from_record(C.CString(in.Owner().String()), C.int64_t(in.Value()), (*C.uint8_t)(unsafe.Pointer(&in.Payload()[0])))
 	defer C.free(unsafe.Pointer(inRecord))
 
 	if len(ledgerProofs) != 2 {

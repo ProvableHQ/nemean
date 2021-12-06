@@ -8,15 +8,20 @@ crate-type = ["cdylib"]
 
 [dependencies.snarkvm-dpc]
 git = "https://github.com/AleoHQ/snarkVM.git"
-#branch = "testnet2"
+branch = "testnet2"
 default-features = true
-rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
+#rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
 
 [dependencies.snarkvm-utilities]
 git = "https://github.com/AleoHQ/snarkVM.git"
-#branch = "testnet2"
+branch = "testnet2"
 default-features = true
-rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
+#rev = "7c5005101b8974a82601bc6f54baa5add0326eaa"
+
+[dependencies.snarkvm-algorithms]
+git = "https://github.com/AleoHQ/snarkVM.git"
+branch = "testnet2"
+default-features = true
 
 [dependencies.hex]
 version = "0.4.3"

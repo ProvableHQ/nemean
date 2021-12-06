@@ -1,3 +1,4 @@
+use crate::c_error;
 use rand::{rngs::StdRng, SeedableRng};
 use rand::{thread_rng, Rng};
 use rand_chacha::ChaChaRng;
@@ -12,7 +13,7 @@ use std::{slice, str::FromStr};
 #[no_mangle]
 pub extern "C" fn new_coinbase_transaction(
     addr: *const libc::c_char,
-    val: u64,
+    val: i64,
     randomness: *const u8,
     randomness_len: libc::size_t,
 ) -> *mut libc::c_char {
@@ -32,7 +33,8 @@ pub extern "C" fn new_coinbase_transaction(
     let mut rng: StdRng = SeedableRng::from_seed(c_rng.try_into().unwrap());
 
     let transaction =
-        Transaction::<Testnet2>::new_coinbase(address, AleoAmount(val as i64), &mut rng).unwrap();
+        Transaction::<Testnet2>::new_coinbase(address, AleoAmount(val as i64), true, &mut rng)
+            .unwrap();
     let tx_bytes = transaction.to_bytes_le().unwrap();
     let serialized_tx = hex::encode(&tx_bytes);
     CString::new(serialized_tx.to_string()).unwrap().into_raw()
@@ -94,8 +96,8 @@ pub extern "C" fn new_transfer_transaction(
         vec![c_in_record.clone()],
         vec![record_proof1, record_proof2],
         addr,
-        AleoAmount::from_bytes(amount),
-        AleoAmount::from_bytes(fee),
+        AleoAmount(amount),
+        AleoAmount(fee),
         true,
         rng,
     )
@@ -103,8 +105,20 @@ pub extern "C" fn new_transfer_transaction(
 
     let vm = VirtualMachine::<Testnet2>::new(ledger_root).unwrap();
 
-    let res = vm.execute(&state, rng);
-    let transaction = res.unwrap().finalize().unwrap();
+    let res = match vm.execute(&state, rng) {
+        Ok(res) => res,
+        Err(_) => {
+            c_error::update_last_error(snarkvm_utilities::error("could not execute transaction"));
+            return std::ptr::null_mut();
+        }
+    };
+    let transaction = match res.0.finalize() {
+        Ok(res) => res,
+        Err(_) => {
+            c_error::update_last_error(snarkvm_utilities::error("could not finalize transaction"));
+            return std::ptr::null_mut();
+        }
+    };
 
     let tx_bytes = transaction.to_bytes_le().unwrap();
     let serialized_tx = hex::encode(&tx_bytes);

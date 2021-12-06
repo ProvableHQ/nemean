@@ -73,4 +73,6 @@ OPTIONS:
    --record value        JSON input record to consume
 ```
 
+Additionally, you will need to keep a copy of the global network parameters on your airgapped machine. These can be found `~.aleo/./resources/`.
+
 Depending on the available hardware capabilities of the machine, one might consider QR or USB. There is not yet a standard developed by the community for airgapped operations, so a custom payload structure must be considered.
