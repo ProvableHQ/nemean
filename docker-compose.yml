@@ -1,16 +1,30 @@
 version: '3'
 
 services:
-  snarkos:
-    image: aleohq/snarkos
-    container_name: snarkos
+  snarkos_miner:
+    # The image aleohq/snarkos:latest on DockerHub is currently outdated.
+    # Use https://github.com/AleoHQ/snarkOS instead.
+    # docker build -t snarkos:testnet2 -f Dockerfile .
+    image: snarkos:testnet2
+    container_name: snarkos_miner
     command:
       - ./aleo/bin/snarkos
-      - --rpc-username=aleo
-      - --rpc-password=password
-      - --network=0
-      - --rpc-port=3030
+      - --dev=1
+      - --node=0.0.0.0:4135
+      - --rpc=0.0.0.0:3030
+      - --miner=aleo1d5hg2z3ma00382pngntdp68e74zv54jdxy249qhaujhks9c72yrs33ddah
     ports:
-      - 3030:3030
-    volumes:
-      - ./docker-data/snarkos:/root/
+      - "3030:3030"
+      - "4135:4135"
+    networks:
+      - default
+  snarkos:
+    image: snarkos:testnet2
+    container_name: snarkos
+    depends_on:
+      - snarkos_miner
+    command:
+      - ./aleo/bin/snarkos
+      - --dev=2
+    networks:
+      - default
