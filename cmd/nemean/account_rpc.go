@@ -90,7 +90,12 @@ func getBlockHeader(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }
@@ -184,7 +189,12 @@ func getBlocks(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }
@@ -205,7 +215,12 @@ func getBlockTransactions(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }
@@ -268,7 +283,12 @@ func latestBlock(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }
@@ -289,7 +309,12 @@ func latestBlockHeader(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }
@@ -310,7 +335,12 @@ func latestBlockTransactions(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", resp)
+	body, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", body)
 
 	return nil
 }

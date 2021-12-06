@@ -414,7 +414,7 @@ func (c *Client) GetBlocks(start, end int64) ([]Block, error) {
 }
 
 // GetBlockTransactions returns transactions in a block at a given height.
-func (c *Client) GetBlockTransactions(height int64) ([]*Transaction, error) {
+func (c *Client) GetBlockTransactions(height int64) (*Transactions, error) {
 	param, err := json.Marshal(height)
 	if err != nil {
 		return nil, err
@@ -430,12 +430,12 @@ func (c *Client) GetBlockTransactions(height int64) ([]*Transaction, error) {
 		return nil, err
 	}
 
-	res := make([]*Transaction, 0)
+	var res Transactions
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 // LatestBlock returns the latest block.
@@ -519,7 +519,7 @@ func (c *Client) LatestBlockHeight() (int64, error) {
 }
 
 // LatestBlockTransactions returns a list of transactions for the latest block.
-func (c *Client) LatestBlockTransactions() ([]*Transaction, error) {
+func (c *Client) LatestBlockTransactions() (*Transactions, error) {
 	req, err := newRequestBody(2, "", latestBlockTransactionsMethod, nil)
 	if err != nil {
 		return nil, err
@@ -530,12 +530,12 @@ func (c *Client) LatestBlockTransactions() ([]*Transaction, error) {
 		return nil, err
 	}
 
-	res := make([]*Transaction, 0)
+	var res Transactions
 	if err := json.Unmarshal(resp.Result, &res); err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 // GetConnectedPeers returns a list of connected peers.
