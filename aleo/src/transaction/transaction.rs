@@ -91,7 +91,7 @@ pub extern "C" fn new_transfer_transaction(
     let record_proof2 = LedgerProof::<Testnet2>::from_bytes_le(&record_bytes2).unwrap();
     let ledger_root = record_proof1.ledger_root();
 
-    let state = Request::<Testnet2>::new_transfer(
+    let state = match Request::<Testnet2>::new_transfer(
         &sk,
         vec![c_in_record.clone()],
         vec![record_proof1, record_proof2],
@@ -100,8 +100,15 @@ pub extern "C" fn new_transfer_transaction(
         AleoAmount(fee),
         true,
         rng,
-    )
-    .unwrap();
+    ) {
+        Ok(res) => res,
+        Err(_) => {
+            c_error::update_last_error(snarkvm_utilities::error(
+                "could not create transfer request",
+            ));
+            return std::ptr::null_mut();
+        }
+    };
 
     let vm = VirtualMachine::<Testnet2>::new(ledger_root).unwrap();
 
@@ -122,5 +129,6 @@ pub extern "C" fn new_transfer_transaction(
 
     let tx_bytes = transaction.to_bytes_le().unwrap();
     let serialized_tx = hex::encode(&tx_bytes);
+
     CString::new(serialized_tx.to_string()).unwrap().into_raw()
 }

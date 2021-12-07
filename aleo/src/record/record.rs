@@ -9,7 +9,7 @@ use rand::{thread_rng, Rng};
 use rand_chacha::ChaChaRng;
 use snarkvm_algorithms::EncryptionScheme;
 use snarkvm_dpc::{
-    network::testnet2::Testnet2, Address, AleoAmount, Ciphertext, Network, Payload, Record, ViewKey,
+    network::testnet2::Testnet2, Address, AleoAmount, Network, Payload, Record, ViewKey,
 };
 use snarkvm_utilities::{FromBytes, ToBytes};
 use std::ffi::{CStr, CString};
@@ -156,17 +156,9 @@ pub extern "C" fn decrypt_record(
     let view_key = ViewKey::<Testnet2>::from_str(c_view_key.to_str().unwrap()).unwrap();
 
     let encrypted_record =
-        match Ciphertext::<Testnet2>::read_le(c_ciphertext.to_str().unwrap().as_bytes()) {
-            Ok(ciphertext) => ciphertext,
-            _ => {
-                c_error::update_last_error(snarkvm_utilities::error(
-                    "cannot convert ciphertext into Ciphertext object",
-                ));
-                return std::ptr::null_mut();
-            }
-        };
+        <Testnet2 as Network>::RecordCiphertext::from_str(c_ciphertext.to_str().unwrap()).unwrap(); // <Network>::RecordCiphertext::from_str("");
 
-    let record = match Record::from_account_view_key(&view_key, &encrypted_record.into()) {
+    let record = match Record::from_account_view_key(&view_key, &encrypted_record) {
         Ok(rec) => rec,
         _ => {
             c_error::update_last_error(snarkvm_utilities::error("cannot decrypt ciphertext"));
