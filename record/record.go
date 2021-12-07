@@ -1,6 +1,7 @@
 package record
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/pinestreetlabs/aleo-wallet-sdk/account"
@@ -19,7 +20,7 @@ type Record struct {
 type JSON struct {
 	Owner                string `json:"owner"`
 	Value                int64  `json:"value"`
-	Payload              []byte `json:"payload"`
+	Payload              string `json:"payload"`
 	ProgramID            string `json:"program_id"`
 	CommitmentRandomness string `json:"commitment_randomness"`
 }
@@ -29,7 +30,7 @@ func (r *Record) MarshalJSON() ([]byte, error) {
 	return json.Marshal(JSON{
 		Owner:                r.owner.String(),
 		Value:                r.value,
-		Payload:              r.payload,
+		Payload:              hex.EncodeToString(r.payload),
 		ProgramID:            r.programID,
 		CommitmentRandomness: r.commitmentRandomness,
 	})
@@ -50,7 +51,10 @@ func (r *Record) UnmarshalJSON(b []byte) error {
 
 	r.owner = addr
 	r.value = temp.Value
-	r.payload = temp.Payload
+	r.payload, err = hex.DecodeString(temp.Payload)
+	if err != nil {
+		return err
+	}
 	r.programID = temp.ProgramID
 	r.commitmentRandomness = temp.CommitmentRandomness
 

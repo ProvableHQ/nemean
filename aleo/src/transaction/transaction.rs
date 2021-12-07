@@ -3,8 +3,8 @@ use rand::{rngs::StdRng, SeedableRng};
 use rand::{thread_rng, Rng};
 use rand_chacha::ChaChaRng;
 use snarkvm_dpc::{
-    network::testnet2::Testnet2, Address, AleoAmount, LedgerProof, PrivateKey, Record, Request,
-    Transaction, VirtualMachine,
+    network::testnet2::Testnet2, Address, AleoAmount, LedgerProof, Network, PrivateKey, Record,
+    Request, Transaction, ViewKey, VirtualMachine,
 };
 use snarkvm_utilities::{FromBytes, ToBytes};
 use std::ffi::{CStr, CString};
@@ -42,7 +42,7 @@ pub extern "C" fn new_coinbase_transaction(
 
 #[no_mangle]
 pub extern "C" fn new_transfer_transaction(
-    in_record: *mut Record<Testnet2>,
+    in_record: *const libc::c_char,
     ledger_proof_one: *const libc::c_char,
     ledger_proof_two: *const libc::c_char,
     private_key: *const libc::c_char,
@@ -55,7 +55,7 @@ pub extern "C" fn new_transfer_transaction(
 
     let c_in_record = unsafe {
         assert!(!in_record.is_null());
-        &*in_record.clone()
+        CStr::from_ptr(in_record)
     };
 
     let c_private_key = unsafe {
@@ -85,6 +85,18 @@ pub extern "C" fn new_transfer_transaction(
         CStr::from_ptr(ledger_proof_two)
     };
 
+    // from ciphertext
+    let encrypted_record =
+        <Testnet2 as Network>::RecordCiphertext::from_str(c_in_record.to_str().unwrap()).unwrap();
+    let view_key = ViewKey::from_private_key(&sk);
+    let record = match Record::from_account_view_key(&view_key, &encrypted_record) {
+        Ok(rec) => rec,
+        _ => {
+            c_error::update_last_error(snarkvm_utilities::error("cannot decrypt ciphertext"));
+            return std::ptr::null_mut();
+        }
+    };
+
     let record_bytes1 = hex::decode(c_ledger_proof_one.to_str().unwrap()).unwrap();
     let record_proof1 = LedgerProof::<Testnet2>::from_bytes_le(&record_bytes1).unwrap();
     let record_bytes2 = hex::decode(c_ledger_proof_two.to_str().unwrap()).unwrap();
@@ -93,7 +105,7 @@ pub extern "C" fn new_transfer_transaction(
 
     let state = match Request::<Testnet2>::new_transfer(
         &sk,
-        vec![c_in_record.clone()],
+        vec![record.clone()],
         vec![record_proof1, record_proof2],
         addr,
         AleoAmount(amount),
@@ -110,7 +122,13 @@ pub extern "C" fn new_transfer_transaction(
         }
     };
 
-    let vm = VirtualMachine::<Testnet2>::new(ledger_root).unwrap();
+    let vm = match VirtualMachine::<Testnet2>::new(ledger_root) {
+        Ok(res) => res,
+        Err(_) => {
+            c_error::update_last_error(snarkvm_utilities::error("could not start virtual machine"));
+            return std::ptr::null_mut();
+        }
+    };
 
     let res = match vm.execute(&state, rng) {
         Ok(res) => res,

@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pinestreetlabs/aleo-wallet-sdk/account"
-	"github.com/pinestreetlabs/aleo-wallet-sdk/record"
 	"unsafe"
 )
 
@@ -29,19 +28,12 @@ func newCoinbaseTransaction(address *account.Address, value int64, random []byte
 	return C.GoString(res)
 }
 
-func newTransferTransaction(privateKey *account.PrivateKey, to *account.Address, in *record.Record, ledgerProofs []string, amount, fee int64) (string, error) {
-	inRecord := C.from_record(C.CString(in.Owner().String()), C.int64_t(in.Value()), (*C.uint8_t)(unsafe.Pointer(&in.Payload()[0])))
-	if inRecord == nil {
-		return "", handleCError()
-	}
-
-	defer C.free(unsafe.Pointer(inRecord))
-
+func newTransferTransaction(privateKey *account.PrivateKey, to *account.Address, in string, ledgerProofs []string, amount, fee int64) (string, error) {
 	if len(ledgerProofs) != 2 {
 		return "", errors.New("wrong number of ledger proofs")
 	}
 
-	txn := C.new_transfer_transaction(inRecord, C.CString(ledgerProofs[0]), C.CString(ledgerProofs[1]), C.CString(privateKey.String()), C.int64_t(amount), C.int64_t(fee), C.CString(to.String()))
+	txn := C.new_transfer_transaction(C.CString(in), C.CString(ledgerProofs[0]), C.CString(ledgerProofs[1]), C.CString(privateKey.String()), C.int64_t(amount), C.int64_t(fee), C.CString(to.String()))
 	if txn == nil {
 		return "", handleCError()
 	}

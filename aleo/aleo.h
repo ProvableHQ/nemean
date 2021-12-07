@@ -41,7 +41,7 @@ char *new_coinbase_transaction(const char *addr,
                               const uint8_t *randomness,
                               size_t randomness_len);
 
-char *new_transfer_transaction(record_t *in_record,
+char *new_transfer_transaction(const char *in_record,
                                const char *ledger_proof_one,
                                const char *ledger_proof_two,
                                const char *private_key,

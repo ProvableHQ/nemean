@@ -69,13 +69,6 @@ func fromAccount(ctx *cli.Context) error {
 }
 
 func newTransaction(ctx *cli.Context) error {
-	inputRec := ctx.String("record")
-
-	var rec record.Record
-	if err := json.Unmarshal([]byte(inputRec), &rec); err != nil {
-		return err
-	}
-
 	to, err := account.ParseAddress(ctx.String("to"))
 	if err != nil {
 		return err
@@ -90,7 +83,7 @@ func newTransaction(ctx *cli.Context) error {
 	amount := ctx.Int64("amount")
 	fee := ctx.Int64("fee")
 
-	txn, err := transaction.NewTransferTransaction(sk, to, &rec, proofs, amount, fee)
+	txn, err := transaction.NewTransferTransaction(sk, to, ctx.String("record"), proofs, amount, fee)
 	if err != nil {
 		return err
 	}

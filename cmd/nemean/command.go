@@ -73,7 +73,7 @@ var newTransactionCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:     "record",
-			Usage:    "JSON input record to consume",
+			Usage:    "the ciphertext of the record to consume",
 			Required: true,
 		},
 	},

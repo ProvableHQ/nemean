@@ -156,7 +156,7 @@ pub extern "C" fn decrypt_record(
     let view_key = ViewKey::<Testnet2>::from_str(c_view_key.to_str().unwrap()).unwrap();
 
     let encrypted_record =
-        <Testnet2 as Network>::RecordCiphertext::from_str(c_ciphertext.to_str().unwrap()).unwrap(); // <Network>::RecordCiphertext::from_str("");
+        <Testnet2 as Network>::RecordCiphertext::from_str(c_ciphertext.to_str().unwrap()).unwrap();
 
     let record = match Record::from_account_view_key(&view_key, &encrypted_record) {
         Ok(rec) => rec,
